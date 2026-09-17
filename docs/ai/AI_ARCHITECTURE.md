@@ -1,0 +1,6 @@
+# AI ARCHITECTURE
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Architecture of the AI components.

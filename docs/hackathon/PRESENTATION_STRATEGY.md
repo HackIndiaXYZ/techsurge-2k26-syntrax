@@ -1,0 +1,6 @@
+# PRESENTATION STRATEGY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Strategy for the pitch presentation.

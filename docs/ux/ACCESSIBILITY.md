@@ -1,0 +1,6 @@
+# ACCESSIBILITY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Accessibility standards and practices.

@@ -1,0 +1,6 @@
+# ENVIRONMENT STRATEGY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Strategy for managing different environments.

@@ -1,0 +1,6 @@
+# CREDIT AND LENDING
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Concepts related to credit and lending.

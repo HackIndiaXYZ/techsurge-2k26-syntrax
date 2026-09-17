@@ -1,0 +1,6 @@
+# DEPLOYMENT
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Overall deployment strategy.

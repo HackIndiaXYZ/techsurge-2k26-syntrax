@@ -1,0 +1,6 @@
+# PREPARATION JOURNEY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Summary of the preparation phase.

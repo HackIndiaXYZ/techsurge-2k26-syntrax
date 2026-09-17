@@ -1,0 +1,6 @@
+# JUDGE DEMO FLOW
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+The flow of the demo for the judges.

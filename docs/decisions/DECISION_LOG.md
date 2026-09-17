@@ -1,0 +1,6 @@
+# DECISION LOG
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Log of all major decisions made.

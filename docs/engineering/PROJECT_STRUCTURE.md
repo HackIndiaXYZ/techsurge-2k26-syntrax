@@ -1,0 +1,6 @@
+# PROJECT STRUCTURE
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Explanation of the repository structure.

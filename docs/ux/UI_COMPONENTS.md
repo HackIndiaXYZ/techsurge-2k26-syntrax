@@ -1,0 +1,6 @@
+# UI COMPONENTS
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Specific UI component documentation.

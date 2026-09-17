@@ -1,0 +1,6 @@
+# FRAUD AND RISK
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Fraud prevention and risk management.

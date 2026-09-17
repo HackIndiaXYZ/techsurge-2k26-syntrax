@@ -1,0 +1,6 @@
+# DOCKER
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Docker configuration and usage.

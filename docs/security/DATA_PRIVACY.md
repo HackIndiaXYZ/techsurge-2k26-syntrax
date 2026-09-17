@@ -1,0 +1,6 @@
+# DATA PRIVACY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Data privacy and protection policies.

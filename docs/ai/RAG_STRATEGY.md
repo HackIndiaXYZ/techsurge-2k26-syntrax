@@ -1,0 +1,6 @@
+# RAG STRATEGY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Strategy for Retrieval-Augmented Generation.

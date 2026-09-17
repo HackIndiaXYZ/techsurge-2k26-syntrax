@@ -1,0 +1,6 @@
+# DATABASE SCHEMA
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Database schema and table structures.

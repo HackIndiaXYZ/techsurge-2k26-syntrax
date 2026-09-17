@@ -1,0 +1,6 @@
+# SUPABASE DEPLOYMENT
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Supabase project and database deployment.

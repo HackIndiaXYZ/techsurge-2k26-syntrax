@@ -1,0 +1,6 @@
+# CODE STANDARDS
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Coding standards and conventions.

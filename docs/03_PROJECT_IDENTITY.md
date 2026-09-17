@@ -1,0 +1,6 @@
+# 03 PROJECT IDENTITY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Core identity and vision of the project.

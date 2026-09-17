@@ -1,0 +1,6 @@
+# AI EVALUATION
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+How the AI's performance is evaluated.

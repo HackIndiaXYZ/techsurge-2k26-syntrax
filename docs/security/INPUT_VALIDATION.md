@@ -1,0 +1,6 @@
+# INPUT VALIDATION
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Rules for validating user input.

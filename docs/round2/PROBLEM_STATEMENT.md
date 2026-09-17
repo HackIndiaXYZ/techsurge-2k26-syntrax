@@ -1,0 +1,6 @@
+# PROBLEM STATEMENT
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+The actual live problem statement for Round 2.

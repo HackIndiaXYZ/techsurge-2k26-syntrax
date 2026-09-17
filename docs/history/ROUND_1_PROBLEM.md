@@ -1,0 +1,6 @@
+# ROUND 1 PROBLEM
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+The problem statement provided in Round 1.

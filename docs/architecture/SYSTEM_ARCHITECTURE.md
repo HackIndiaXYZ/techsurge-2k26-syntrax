@@ -1,0 +1,6 @@
+# SYSTEM ARCHITECTURE
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+High-level system architecture overview.
