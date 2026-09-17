@@ -1,3 +1,5 @@
 # 08 SECURITY RULES
 
-Placeholder. This rule set will be populated during the project knowledge phase.
+1. **No Secrets:** Never commit passwords, API keys, or tokens.
+2. **Env Vars:** Use .env files locally. Do not track them in git.
+3. **Validation:** Always validate inputs on the backend.

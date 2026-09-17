@@ -1,3 +1,10 @@
 # 04 GIT RULES
 
-Placeholder. This rule set will be populated during the project knowledge phase.
+1. **Branch Ownership:**
+   - rontend/nikhil belongs to Nikhil.
+   - ackend/ramraj belongs to Ramraj.
+   - i/sanju belongs to Sanju.
+   - infra/akshaya belongs to Akshaya.
+   - main is for integration.
+2. **Workflow:** Do not commit to another teammate's branch. Push to your assigned branch. Create PRs for integration into main.
+3. **Commit Messages:** Keep them concise and descriptive of the *why*.

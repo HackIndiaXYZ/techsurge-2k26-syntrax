@@ -1,3 +1,5 @@
 # 10 DEPLOYMENT RULES
 
-Placeholder. This rule set will be populated during the project knowledge phase.
+1. **Ownership:** Akshaya manages deployment.
+2. **Platforms:** Vercel (Frontend), Render/Railway (Backend).
+3. **Continuous Integration:** Deploy early and often to catch integration issues before the final hour.

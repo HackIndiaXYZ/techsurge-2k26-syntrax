@@ -1,3 +1,5 @@
 # 03 CODE RULES
 
-Placeholder. This rule set will be populated during the project knowledge phase.
+1. **Languages:** TypeScript (Frontend), Python (Backend/AI).
+2. **Frameworks:** Next.js, React, Tailwind, FastAPI.
+3. **Quality:** Write clean, readable code. Avoid deep nesting. Do not obsess over perfection.
