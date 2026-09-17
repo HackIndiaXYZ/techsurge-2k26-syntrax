@@ -1,9 +1,9 @@
 # 04 GIT RULES
 
 1. **Branch Ownership:**
-   - rontend/nikhil belongs to Nikhil.
-   - ackend/ramraj belongs to Ramraj.
-   - i/sanju belongs to Sanju.
+   - frontend/nikhil belongs to Nikhil.
+   - backend/ramraj belongs to Ramraj.
+   - ai/sanju belongs to Sanju.
    - infra/akshaya belongs to Akshaya.
    - main is for integration.
 2. **Workflow:** Do not commit to another teammate's branch. Push to your assigned branch. Create PRs for integration into main.

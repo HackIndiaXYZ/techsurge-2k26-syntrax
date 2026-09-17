@@ -27,9 +27,9 @@
 
 ## 4. Git Workflow & Branches
 - main (Integration)
-- rontend/nikhil
-- ackend/ramraj
-- i/sanju
+- frontend/nikhil
+- backend/ramraj
+- ai/sanju
 - infra/akshaya
 - **Rule:** Parallel development driven by API-contract-first design.
 

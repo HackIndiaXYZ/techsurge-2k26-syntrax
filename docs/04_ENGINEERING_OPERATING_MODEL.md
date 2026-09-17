@@ -7,7 +7,7 @@ To support 4 people working simultaneously during the 17-hour build:
 2. **Mock-Driven Frontend & AI:** Frontend (Nikhil) and AI (Sanju) develop against mock data and these API contracts.
 3. **Database Ownership:** Infra (Akshaya) provisions schemas/migrations for Backend.
 4. **Git Workflow:** 
-   - Feature branches belong to individuals (rontend/nikhil, ackend/ramraj, etc.).
+   - Feature branches belong to individuals (frontend/nikhil, backend/ramraj, etc.).
    - Pull Requests to main must be reviewed and tested locally.
 5. **Integration Protocol:** Integration happens on main only when tests pass and contracts are fulfilled.
 
