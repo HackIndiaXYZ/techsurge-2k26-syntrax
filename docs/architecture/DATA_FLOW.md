@@ -1,0 +1,6 @@
+# DATA FLOW
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Data flow diagrams and descriptions.

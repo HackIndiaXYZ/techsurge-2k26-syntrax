@@ -1,0 +1,6 @@
+# FINTECH SECURITY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Security requirements specific to FinTech.

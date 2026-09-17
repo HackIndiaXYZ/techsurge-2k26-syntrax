@@ -1,0 +1,6 @@
+# RELEASE STATUS
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Status of upcoming releases.

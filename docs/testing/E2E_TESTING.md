@@ -1,0 +1,6 @@
+# E2E TESTING
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+End-to-end testing guidelines.

@@ -1,0 +1,6 @@
+# AI TESTING
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+How AI components are tested.

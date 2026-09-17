@@ -1,0 +1,6 @@
+# MCP STRATEGY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Model Context Protocol strategy.

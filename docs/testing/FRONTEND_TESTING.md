@@ -1,0 +1,6 @@
+# FRONTEND TESTING
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+How frontend components are tested.

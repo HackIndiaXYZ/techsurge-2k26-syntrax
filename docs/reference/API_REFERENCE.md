@@ -1,0 +1,6 @@
+# API REFERENCE
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Reference for external APIs used.

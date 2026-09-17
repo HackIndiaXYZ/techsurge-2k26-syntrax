@@ -1,0 +1,6 @@
+# VERCEL DEPLOYMENT
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Vercel specific deployment steps.

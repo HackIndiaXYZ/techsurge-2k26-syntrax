@@ -1,0 +1,6 @@
+# SOURCE MATERIAL INDEX
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Index of all source materials provided.

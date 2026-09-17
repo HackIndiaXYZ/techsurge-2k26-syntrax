@@ -1,0 +1,6 @@
+# UX PRINCIPLES
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Core User Experience principles.

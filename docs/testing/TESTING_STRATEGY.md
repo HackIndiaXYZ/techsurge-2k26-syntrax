@@ -1,0 +1,6 @@
+# TESTING STRATEGY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Overall testing strategy and approach.

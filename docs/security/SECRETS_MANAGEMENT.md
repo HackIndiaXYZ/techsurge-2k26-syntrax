@@ -1,0 +1,6 @@
+# SECRETS MANAGEMENT
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+How secrets and credentials are managed.

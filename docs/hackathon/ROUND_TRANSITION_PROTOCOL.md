@@ -1,0 +1,6 @@
+# ROUND TRANSITION PROTOCOL
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+How to transition between hackathon rounds.

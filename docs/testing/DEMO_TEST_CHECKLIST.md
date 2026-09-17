@@ -1,0 +1,6 @@
+# DEMO TEST CHECKLIST
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Checklist for testing before a demo.

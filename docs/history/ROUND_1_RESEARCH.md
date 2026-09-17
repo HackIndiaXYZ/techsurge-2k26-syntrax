@@ -1,0 +1,6 @@
+# ROUND 1 RESEARCH
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Research conducted during Round 1.

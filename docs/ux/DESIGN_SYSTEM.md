@@ -1,0 +1,6 @@
+# DESIGN SYSTEM
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Design system and component library guidelines.

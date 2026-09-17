@@ -1,0 +1,6 @@
+# ACCEPTANCE CRITERIA
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Criteria to define when a feature is complete.

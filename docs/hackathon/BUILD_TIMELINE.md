@@ -1,0 +1,6 @@
+# BUILD TIMELINE
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Timeline for the hackathon build phase.

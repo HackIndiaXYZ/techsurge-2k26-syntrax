@@ -1,0 +1,6 @@
+# COMPONENT MAP
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Map of major system components.

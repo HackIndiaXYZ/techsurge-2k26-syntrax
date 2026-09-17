@@ -1,0 +1,6 @@
+# EXTERNAL SERVICES
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Overview of external services used.

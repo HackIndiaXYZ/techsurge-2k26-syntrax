@@ -1,0 +1,6 @@
+# RENDER
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Render deployment details.

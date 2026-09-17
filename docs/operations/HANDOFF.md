@@ -1,0 +1,6 @@
+# HANDOFF
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Handoff notes between team members.

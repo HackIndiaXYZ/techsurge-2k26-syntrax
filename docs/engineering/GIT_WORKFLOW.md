@@ -1,0 +1,6 @@
+# GIT WORKFLOW
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Git branching and merging workflow.

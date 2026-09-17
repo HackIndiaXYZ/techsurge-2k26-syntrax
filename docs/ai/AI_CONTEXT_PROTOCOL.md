@@ -1,0 +1,6 @@
+# AI CONTEXT PROTOCOL
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+How AI agents share and preserve context.

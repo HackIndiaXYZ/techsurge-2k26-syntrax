@@ -1,0 +1,6 @@
+# AI SYSTEM
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Overview of the AI system being built.

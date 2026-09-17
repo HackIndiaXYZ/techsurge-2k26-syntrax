@@ -1,0 +1,6 @@
+# AI AGENT RULES
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Rules governing AI agent behavior.

@@ -1,0 +1,6 @@
+# TERMINOLOGY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Glossary of terms used in the project.

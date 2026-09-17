@@ -1,0 +1,6 @@
+# ARCHITECTURE DECISIONS
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Key architectural decisions and their rationale.

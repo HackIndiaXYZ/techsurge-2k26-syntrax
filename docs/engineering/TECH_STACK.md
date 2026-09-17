@@ -1,0 +1,6 @@
+# TECH STACK
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Technologies used in the project.

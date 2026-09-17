@@ -1,0 +1,6 @@
+# DEPLOYMENT CHECKLIST
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Checklist to complete before deploying.

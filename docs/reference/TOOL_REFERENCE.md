@@ -1,0 +1,6 @@
+# TOOL REFERENCE
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Reference for tools used by the team.

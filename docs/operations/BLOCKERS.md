@@ -1,0 +1,6 @@
+# BLOCKERS
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Tracking current blockers.

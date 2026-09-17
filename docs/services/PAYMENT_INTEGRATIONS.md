@@ -1,0 +1,6 @@
+# PAYMENT INTEGRATIONS
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Details about payment gateway integrations.

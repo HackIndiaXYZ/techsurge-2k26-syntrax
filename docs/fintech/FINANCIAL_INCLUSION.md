@@ -1,0 +1,6 @@
+# FINANCIAL INCLUSION
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Considerations for financial inclusion.

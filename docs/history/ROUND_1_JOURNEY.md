@@ -1,0 +1,6 @@
+# ROUND 1 JOURNEY
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Summary of the Round 1 hackathon phase.

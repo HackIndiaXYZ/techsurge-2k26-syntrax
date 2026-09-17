@@ -1,0 +1,6 @@
+# CODE REVIEW
+
+> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+
+Purpose:
+Guidelines for code reviews.
