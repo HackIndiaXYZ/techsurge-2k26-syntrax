@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Header } from "@/components/layout/header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,18 +17,38 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SYNTRAX — Parametric Weather Insurance",
-  description:
-    "Deterministic parametric weather insurance settlement with multi-source consensus, idempotent payouts, and full audit trail. TechSurge 2026 PS-F03.",
+  title: "TerraFlux — Climate Intelligence. Parametric Protection.",
+  description: "Autonomous parametric climate-insurance and instant-settlement system. Built by terraflux.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="min-h-screen bg-background text-foreground font-sans antialiased overflow-hidden">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <div className="flex w-full h-screen overflow-hidden bg-background">
+            <Sidebar />
+            <div className="flex flex-col flex-1 min-w-0 h-screen overflow-hidden relative">
+              <Header />
+              <main className="flex-1 overflow-y-auto w-full p-4 md:p-6 lg:p-8 bg-background relative">
+                <div className="mx-auto max-w-[1400px]">
+                  {children}
+                </div>
+              </main>
+            </div>
+          </div>
+          <Toaster />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -1,31 +1,15 @@
 // ============================================================
-// SYNTRAX Domain Types — derived from docs/architecture/API_CONTRACTS.md
+// TERRAFLUX Domain Types
 // These types match the backend API contract exactly.
 // The frontend NEVER calculates consensus, trigger, or payout.
 // ============================================================
 
-/** Policy lifecycle status */
 export type PolicyStatus = "DRAFT" | "ACTIVE" | "TRIGGERED" | "PAID" | "EXPIRED" | "CANCELLED";
-
-/** Consensus state as determined by the backend */
 export type ConsensusState = "PENDING" | "ACHIEVED" | "NO_CONSENSUS" | "EXPIRED";
-
-/** Trigger evaluation result from the backend */
-export type TriggerState =
-  | "TRIGGERED"
-  | "NOT_MET"
-  | "NOT_ELIGIBLE"
-  | "NO_CONSENSUS"
-  | "ALREADY_TRIGGERED"
-  | "EXPIRED";
-
-/** Settlement status */
+export type TriggerState = "TRIGGERED" | "NOT_MET" | "NOT_ELIGIBLE" | "NO_CONSENSUS" | "ALREADY_TRIGGERED" | "EXPIRED";
 export type SettlementStatus = "PENDING" | "TRIGGERED" | "SETTLED" | "DUPLICATE" | "BLOCKED" | "FAILED";
-
-/** Validation status for a weather source reading */
+export type RazorpayXStatus = "PROCESSED" | "PENDING" | "FAILED" | "UNAVAILABLE";
 export type SourceValidationStatus = "VALID" | "OUTLIER" | "IMPOSSIBLE_VALUE" | "STALE" | "FUTURE_TIMESTAMP" | "SOURCE_DISAGREEMENT";
-
-/** Audit event types across the full lifecycle */
 export type AuditEventType =
   | "TELEMETRY_RECEIVED"
   | "TELEMETRY_VALIDATED"
@@ -41,7 +25,7 @@ export type AuditEventType =
   | "WALLET_CREDITED"
   | "NOTIFICATION_SENT";
 
-// ---- API Response Models ----
+export type AiLanguage = "en" | "hi" | "te";
 
 export interface Policy {
   id: string;
@@ -60,11 +44,19 @@ export interface Policy {
   ends_at: string;
 }
 
+export interface WeatherMetrics {
+  rainfall_mm: number;
+  temperature_c: number;
+  humidity_percent: number;
+  wind_speed_kmh: number;
+  wind_direction_deg: number;
+  pressure_hpa: number;
+}
+
 export interface WeatherSource {
   id: string;
   name: string;
-  value: number;
-  unit: string;
+  metrics: WeatherMetrics;
   observed_at: string;
   validation_status: SourceValidationStatus;
   is_in_consensus_group: boolean;
@@ -72,7 +64,7 @@ export interface WeatherSource {
 
 export interface Consensus {
   state: ConsensusState;
-  value: number | null;
+  value: number | null; // This is specifically for the primary metric (rainfall)
   quorum_required: number;
   quorum_met: boolean;
   agreeing_sources: number;
@@ -101,6 +93,18 @@ export interface Settlement {
   transaction_id: string | null;
   executed_at: string | null;
   is_duplicate: boolean;
+  external_payout_status: RazorpayXStatus;
+  external_reference: string | null;
+}
+
+export interface WalletTransaction {
+  id: string;
+  type: "CREDIT" | "BLOCKED" | "INFO";
+  amount_paise: number;
+  event_id: string;
+  description: string;
+  timestamp: string;
+  status: string;
 }
 
 export interface Wallet {
@@ -109,6 +113,7 @@ export interface Wallet {
   currency: string;
   last_credit_paise: number | null;
   last_transaction_id: string | null;
+  transactions: WalletTransaction[];
 }
 
 export interface AuditEvent {
@@ -121,12 +126,20 @@ export interface AuditEvent {
 }
 
 export interface AiInsight {
-  summary: string;
+  explanations: Record<AiLanguage, string>;
   anomaly_explanation: string | null;
-  local_language_note: string | null;
+  tts_available: boolean;
 }
 
-/** The full dashboard response shape — matches GET /v1/dashboard */
+// Time-series data points for charts
+export interface TimeSeriesPoint {
+  time: string;
+  source_a: number;
+  source_b: number;
+  source_c: number;
+  consensus: number | null;
+}
+
 export interface DashboardData {
   scenario: ScenarioId;
   policy: Policy;
@@ -136,10 +149,21 @@ export interface DashboardData {
   wallet: Wallet;
   audit: AuditEvent[];
   ai_insight: AiInsight | null;
+  history: {
+    rainfall: TimeSeriesPoint[];
+    temperature: TimeSeriesPoint[];
+  };
+  event_list: {
+    id: string;
+    timestamp: string;
+    consensus_value: number | null;
+    decision: string;
+    settlement_amount: number;
+    status: string;
+  }[];
 }
 
-// ---- Demo Scenarios ----
-
+// Demo Scenarios
 export type ScenarioId = "normal" | "corrupted-source" | "no-consensus" | "duplicate-settlement";
 
 export interface ScenarioMeta {
@@ -149,29 +173,11 @@ export interface ScenarioMeta {
 }
 
 export const SCENARIOS: ScenarioMeta[] = [
-  {
-    id: "normal",
-    label: "Normal Success",
-    description: "All 3 sources agree. Consensus achieved, trigger fires, settlement executes.",
-  },
-  {
-    id: "corrupted-source",
-    label: "Corrupted Source",
-    description: "Source C is an outlier. A and B still form consensus. System continues safely.",
-  },
-  {
-    id: "no-consensus",
-    label: "No Consensus",
-    description: "All 3 sources disagree. No quorum. Settlement is blocked.",
-  },
-  {
-    id: "duplicate-settlement",
-    label: "Duplicate Settlement",
-    description: "Settlement replayed. Idempotency prevents double payout.",
-  },
+  { id: "normal", label: "Normal Event", description: "All sources valid. Trust pipeline completes." },
+  { id: "corrupted-source", label: "Corrupted Source", description: "One outlier rejected. Consensus still achieved." },
+  { id: "no-consensus", label: "No Consensus", description: "Insufficient agreement. Settlement blocked safely." },
+  { id: "duplicate-settlement", label: "Duplicate Settlement", description: "Replay detected. Idempotency prevents double payout." },
 ];
-
-// ---- Helper: format paise as INR display string ----
 
 export function formatPaise(paise: number, currency: string = "INR"): string {
   const amount = paise / 100;
@@ -180,4 +186,3 @@ export function formatPaise(paise: number, currency: string = "INR"): string {
   }
   return `${currency} ${amount.toLocaleString()}`;
 }
-
