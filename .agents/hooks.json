@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell.exe -ExecutionPolicy Bypass -NoProfile -File C:/TECHSURGE2K26-SYNTRAX/.agents/scripts/safety-gate.ps1"
+            "command": "powershell.exe -ExecutionPolicy Bypass -NoProfile -File d:/fintech/.agents/scripts/safety-gate.ps1"
           }
         ]
       }
