@@ -278,6 +278,7 @@ class BackendEventContract(BaseModel):
     payout_amount_paise: Optional[int] = None
     settlement_status: str = "PENDING"
     idempotency_status: Optional[str] = None
+    wallet_acknowledgement_status: str = "PENDING"
 
 
 class FrontendAIResponse(BaseModel):
@@ -301,3 +302,53 @@ class FrontendAIResponse(BaseModel):
     notification_en: Optional[SettlementNotificationOutput] = None
     notification_hi: Optional[SettlementNotificationOutput] = None
     notification_te: Optional[SettlementNotificationOutput] = None
+    voice_assistance: Optional[dict] = None
+
+# ============================================================
+# Voice Assistance - Input/Output
+# ============================================================
+
+class CallState(str, Enum):
+    NOT_REQUIRED = "NOT_REQUIRED"
+    PENDING = "PENDING"
+    INITIATED = "INITIATED"
+    RINGING = "RINGING"
+    CONNECTED = "CONNECTED"
+    ACKNOWLEDGED = "ACKNOWLEDGED"
+    REPEATED = "REPEATED"
+    ENDED = "ENDED"
+    FAILED = "FAILED"
+
+class CallPurpose(str, Enum):
+    SETTLEMENT_ACKNOWLEDGEMENT = "SETTLEMENT_ACKNOWLEDGEMENT"
+
+class VoiceCallRequest(BaseModel):
+    event_id: str
+    settlement_id: Optional[str] = None
+    language: ExplanationLanguage = ExplanationLanguage.EN
+    phone_number: str
+    purpose: CallPurpose = CallPurpose.SETTLEMENT_ACKNOWLEDGEMENT
+    settlement_amount_paise: int
+    consensus_value: float
+    threshold_value: float
+    acknowledgement_status: str = "NOT_ACKNOWLEDGED"
+
+class VoiceCallScript(BaseModel):
+    event_id: str
+    language: ExplanationLanguage
+    purpose: CallPurpose
+    opening_message: str
+    repeat_message: str
+    acknowledgement_prompt: str
+    fallback_message: str
+    actions: dict = Field(default_factory=dict)
+
+class VoiceCallResult(BaseModel):
+    event_id: str
+    provider: str
+    provider_call_id: Optional[str] = None
+    status: CallState
+    language: ExplanationLanguage
+    acknowledgement_result: Optional[str] = None
+    error_code: Optional[str] = None
+    error_message: Optional[str] = None

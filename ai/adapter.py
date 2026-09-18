@@ -129,3 +129,36 @@ def map_event_to_notification_input(event: BackendEventContract) -> Optional[Set
         threshold_value=100.0,
         language=ExplanationLanguage.EN
     )
+
+from .schemas import VoiceCallRequest, CallPurpose
+
+def map_event_to_voice_request(event: BackendEventContract, phone_number: str, language: ExplanationLanguage = ExplanationLanguage.EN) -> Optional[VoiceCallRequest]:
+    """Map canonical backend event to voice call request if conditions are met."""
+    
+    # Strictly do NOT call if settlement is not completed
+    if event.settlement_status != "COMPLETED":
+        return None
+        
+    # Strictly do NOT call if it is a duplicate/retry event
+    if event.idempotency_status == "DUPLICATE":
+        return None
+        
+    # Strictly do NOT call if it has already been acknowledged
+    if event.wallet_acknowledgement_status != "NOT_ACKNOWLEDGED":
+        return None
+        
+    # Strictly do NOT call if there was no consensus
+    if event.consensus_status != "ACHIEVED" and event.consensus_status != "CONSENSUS":
+        return None
+
+    return VoiceCallRequest(
+        event_id=event.event_id,
+        settlement_id=f"settlement_{event.event_id}",
+        language=language,
+        phone_number=phone_number,
+        purpose=CallPurpose.SETTLEMENT_ACKNOWLEDGEMENT,
+        settlement_amount_paise=event.payout_amount_paise or 0,
+        consensus_value=event.consensus_value or 0.0,
+        threshold_value=100.0, # Standard demo threshold
+        acknowledgement_status=event.wallet_acknowledgement_status
+    )

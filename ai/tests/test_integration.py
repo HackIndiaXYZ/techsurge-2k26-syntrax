@@ -86,7 +86,8 @@ def convert_fixture_to_backend_event(scenario: dict) -> BackendEventContract:
         trigger_reason=trigger_reason,
         payout_amount_paise=payout_amount,
         settlement_status=settlement_status,
-        idempotency_status=idem
+        idempotency_status=idem,
+        wallet_acknowledgement_status=scenario["expected"].get("wallet_acknowledgement_status", "NOT_ACKNOWLEDGED")
     )
 
 

@@ -135,3 +135,41 @@ The integration is proven against all 10 canonical architecture scenarios:
 10. `barely-crossed`
 
 All scenarios produce deterministic, language-localized explanations without hallucinations, enforcing the financial authority of the backend.
+
+---
+
+## 6. Voice Assistance
+
+The AI layer now supports optional Voice Assistance for settlement acknowledgement.
+
+**Voice assistance is explanatory/accessibility functionality. It does not determine or authorize financial settlement.**
+
+### Lifecycle Flow
+1. **settlement** (Deterministic Backend)
+2. **wallet notification** (Frontend/Backend push)
+3. **acknowledgement window** (Configurable delay)
+4. **AI voice assistance** (Outbound call to policyholder)
+
+### Voice Calling Rules
+- Calls are ONLY placed if `settlement_status == COMPLETED` AND `wallet_acknowledgement_status == NOT_ACKNOWLEDGED`.
+- Calls are NEVER placed for pending, blocked, or failed settlements.
+- Idempotency ensures only one call is made per unacknowledged event.
+- The voice script natively supports English (EN), Hindi (HI), and Telugu (TE) via TTS (e.g. Twilio + Amazon Polly).
+- The user can acknowledge the call via standard DTMF input (1 to acknowledge, 2 to repeat, 3 to end).
+
+### Endpoint
+`POST /v1/ai/voice/call`
+
+```json
+{
+  "event_id": "evt_12345",
+  "language": "en",
+  "phone_number": "+919876543210",
+  "settlement_amount_paise": 1000000,
+  "consensus_value": 102.0,
+  "threshold_value": 100.0,
+  "acknowledgement_status": "NOT_ACKNOWLEDGED"
+}
+```
+
+This returns a `VoiceCallResult` denoting `provider_call_id` and the `status` (e.g. `INITIATED`, `NOT_REQUIRED`, `FAILED`).

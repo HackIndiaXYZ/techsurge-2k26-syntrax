@@ -536,3 +536,76 @@ def list_scenario_names() -> list[str]:
     """Return all available scenario names."""
     return [s["name"] for s in ALL_SCENARIOS]
 
+
+# ============================================================
+# Scenario 11: Unacknowledged Settlement (Voice Eligible)
+# ============================================================
+SCENARIO_UNACKNOWLEDGED_SETTLEMENT = {
+    "name": "unacknowledged-settlement",
+    "description": "Settlement completed but not acknowledged by wallet.",
+    "readings": [
+        {
+            "source_code": SOURCE_A_ID,
+            "source_event_id": "unack-a-001",
+            "value": 102.0,
+            "unit": "mm",
+            "metadata": {"scenario": "unacknowledged-settlement"},
+        },
+        {
+            "source_code": SOURCE_B_ID,
+            "source_event_id": "unack-b-001",
+            "value": 103.0,
+            "unit": "mm",
+            "metadata": {"scenario": "unacknowledged-settlement"},
+        }
+    ],
+    "expected": {
+        "validation": {
+            SOURCE_A_ID: "ACCEPTED",
+            SOURCE_B_ID: "ACCEPTED",
+        },
+        "consensus": {
+            "state": "ACHIEVED",
+            "value": 102.5,
+            "member_count": 2,
+        },
+        "trigger": {
+            "outcome": "TRIGGERED",
+            "reason_code": "THRESHOLD_MET",
+        },
+        "payout": {
+            "state": "COMPLETED",
+            "amount_paise": POLICY_AMOUNT_PAISE,
+        },
+        "wallet_acknowledgement_status": "NOT_ACKNOWLEDGED"
+    }
+}
+
+# ============================================================
+# Scenario 12: Acknowledged Settlement (Voice Ineligible)
+# ============================================================
+SCENARIO_ACKNOWLEDGED_SETTLEMENT = {
+    "name": "acknowledged-settlement",
+    "description": "Settlement completed and already acknowledged by wallet.",
+    "readings": [
+        {
+            "source_code": SOURCE_A_ID,
+            "source_event_id": "ack-a-001",
+            "value": 102.0,
+            "unit": "mm",
+            "metadata": {"scenario": "acknowledged-settlement"},
+        },
+    ],
+    "expected": {
+        "validation": {SOURCE_A_ID: "ACCEPTED"},
+        "consensus": {"state": "ACHIEVED", "value": 102.0, "member_count": 1},
+        "trigger": {"outcome": "TRIGGERED", "reason_code": "THRESHOLD_MET"},
+        "payout": {"state": "COMPLETED", "amount_paise": POLICY_AMOUNT_PAISE},
+        "wallet_acknowledgement_status": "ACKNOWLEDGED"
+    }
+}
+
+ALL_SCENARIOS.extend([
+    SCENARIO_UNACKNOWLEDGED_SETTLEMENT,
+    SCENARIO_ACKNOWLEDGED_SETTLEMENT
+])

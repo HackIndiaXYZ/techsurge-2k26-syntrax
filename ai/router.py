@@ -16,11 +16,14 @@ from .schemas import (
     SettlementNotificationInput,
     SettlementNotificationOutput,
     BackendEventContract,
-    FrontendAIResponse
+    FrontendAIResponse,
+    VoiceCallRequest,
+    VoiceCallResult
 )
 from .anomaly import score_telemetry_anomaly
 from .explainer import explain_event
 from .localizer import generate_settlement_message
+from .voice import execute_voice_assistance
 
 router = APIRouter(prefix="/v1/ai", tags=["AI Advisory"])
 
@@ -66,7 +69,8 @@ def process_backend_event(event: BackendEventContract) -> FrontendAIResponse:
     from .adapter import (
         map_event_to_anomaly_input, 
         map_event_to_explanation_input, 
-        map_event_to_notification_input
+        map_event_to_notification_input,
+        map_event_to_voice_request
     )
     
     response = FrontendAIResponse(event_id=event.event_id)
@@ -97,7 +101,30 @@ def process_backend_event(event: BackendEventContract) -> FrontendAIResponse:
             notif_input.language = ExplanationLanguage.TE
             response.notification_te = generate_settlement_message(notif_input)
             
+        # 4. Voice Assistance Status
+        voice_req = map_event_to_voice_request(event, phone_number="NOT_PROVIDED")
+        if voice_req:
+            response.voice_assistance = {
+                "enabled": True,
+                "status": "PENDING_PHONE_NUMBER", # Frontend needs to provide it for actual call
+                "language": "en-IN"
+            }
+        else:
+            response.voice_assistance = {
+                "enabled": False,
+                "status": "NOT_REQUIRED"
+            }
+            
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
         
     return response
+
+@router.post("/voice/call", response_model=VoiceCallResult)
+def initiate_voice_call(request: VoiceCallRequest) -> VoiceCallResult:
+    """Initiate an outbound voice assistance call."""
+    try:
+        return execute_voice_assistance(request)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
