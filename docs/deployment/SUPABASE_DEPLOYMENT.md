@@ -1,6 +1,3 @@
-# SUPABASE DEPLOYMENT
+# Supabase PostgreSQL Deployment
 
-> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
-
-Purpose:
-Supabase project and database deployment.
+Use Supabase as PostgreSQL persistence, not as a browser-accessible financial backend. Apply migrations, load only synthetic seeds, disable anonymous writes through RLS, and store service credentials only in FastAPI server environment. Verify constraints for source event, payout and wallet transaction uniqueness after migration.

@@ -1,0 +1,5 @@
+# Beyond the Hackathon
+
+A real parametric-insurance service would need governed weather providers and data contracts, source provenance/signatures, calibration and independent oracle governance, insurer/product approval, actuarial design, policy wording, customer consent, KYC/identity where applicable, regulated payment/wallet partners, reconciliation, liquidity and reinsurance management, privacy/security reviews, observability, disaster recovery, incident response, compliance audit and basis-risk monitoring/remediation.
+
+It would also need real regional definitions, provider outage plans, resilience across simultaneous disaster events, meaningful service objectives, claims/dispute processes where parametric mismatch occurs, fraud controls, accessibility/localisation, and continued evaluation of false/missed triggers. None is asserted as present in the MVP; the MVP isolates the deterministic engineering shape so those questions can be addressed later without pretending they are solved.

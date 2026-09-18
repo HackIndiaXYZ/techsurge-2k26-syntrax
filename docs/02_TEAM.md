@@ -1,13 +1,10 @@
-# 02 TEAM
+# SYNTRAX Team and Ownership
 
-## Team Members and Roles
-- **Nikhil (Laptop 1):** Frontend + Product Experience + Integration Lead
-- **Ramraj (Laptop 2):** Backend / Financial Systems
-- **Sanju (Laptop 3):** AI/ML + Agents + RAG
-- **Akshaya (Laptop 4):** Infrastructure + Database + Security + Testing
+| Member | Accountability | PS-F03 first deliverable |
+| --- | --- | --- |
+| Nikhil | Frontend, product experience, integration lead | Dashboard rendering the policy-to-audit path against documented mock contracts |
+| Ramraj | Backend and financial systems | Deterministic ingestion, consensus, trigger, payout and audit API path |
+| Sanju | AI/ML, agents and RAG | Synthetic scenarios, optional anomaly/explanation proposal, and deterministic-boundary review |
+| Akshaya | Infrastructure, database, security, testing | Schema/migration plan, environment safety, test matrix, deploy check |
 
-## Responsibilities
-- **Frontend (Nikhil):** UX, UI, client-side integration against mock API contracts.
-- **Backend (Ramraj):** API implementation, core financial/system logic.
-- **AI (Sanju):** AI models, RAG, agent workflows (developed against contracts).
-- **Infra (Akshaya):** CI/CD, database schemas, security, deployment.
+All owners build to [API Contracts](architecture/API_CONTRACTS.md) and [Data Model](database/DATA_MODEL.md). No owner adds a payment, AI, infrastructure, or data-provider integration outside the documented MVP without a recorded decision.

@@ -1,6 +1,6 @@
-# 01 PROJECT CONTEXT RULES
+# PS-F03 Project Context Rules
 
-1. **Context:** We are SYNTRAX at TechSurge 2K26.
-2. **Unknowns:** The actual Round 2 problem statement is UNKNOWN until revealed live. Do not write code solving a speculative problem.
-3. **FinTech:** FinTech was studied during preparation, but do not assume it is the track unless confirmed by the prompt.
-4. **NEXTRA:** Do not build NEXTRA features unless the live problem explicitly demands them.
+1. The active problem is PS-F03. Do not retain “Round 2 unknown” instructions.
+2. The organizer workflow is telemetry ingestion -> validation/consensus -> deterministic trigger -> idempotent simulated payout -> audit.
+3. NEXTRA, employment, credit scoring and lending are historical or out of scope, not product directions.
+4. Basis risk and synthetic-only boundaries must be visible in requirements, UI and demo work.

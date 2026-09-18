@@ -1,6 +1,3 @@
-# ROUND 1 RESEARCH
+# Historical Round 1 Research
 
-> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
-
-Purpose:
-Research conducted during Round 1.
+**Status: historical.** This repository does not retain a verified research corpus for Round 1. Do not infer current requirements from it; use the supplied PS-F03 PDF and the current knowledge base.

@@ -1,13 +1,7 @@
-# 01 HACKATHON CONTEXT
+# TechSurge 2K26 Context
 
-**Event:** TechSurge 2K26 / Kalachakra
+**Official PS requirement:** PS-F03 asks for a zero-touch parametric climate-insurance engine: continuous weather telemetry, deterministic adjudication against pre-agreed policy triggers, and sub-minute simulated settlement to a synthetic digital wallet without a manual claim.
 
-## Round 1 (Completed)
-- Historical preparation phase.
-- Submitted as a PPT/PDF challenge.
-- Our proposed solution was NEXTRA (Capability Passport, Opportunity Bridge, Resource-Constrained Mode), based on student interviews regarding the technical workforce.
+The evaluation emphasizes problem understanding, oracle consensus, idempotent settlement, latency, resilience to corrupted/adversarial telemetry, responsible framing, and demo quality. The product does not need a real insurer, bank, UPI, wallet, provider contract, or payment rail.
 
-## Round 2 (Live Phase)
-- The live hackathon requires building a working prototype.
-- **The actual problem statement is UNKNOWN until revealed at the event.**
-- The engineering constraint is ~17 hours of effective build time.
+The team has roughly 17 effective engineering hours. The design must therefore make the required path visible and testable before optional ideas such as liquidity rebalancing, dual rails, Byzantine fault tolerance, blockchain, or AI assistance.

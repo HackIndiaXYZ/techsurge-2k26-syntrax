@@ -1,10 +1,5 @@
-# 04 GIT RULES
+# PS-F03 Git Rules
 
-1. **Branch Ownership:**
-   - frontend/nikhil belongs to Nikhil.
-   - backend/ramraj belongs to Ramraj.
-   - ai/sanju belongs to Sanju.
-   - infra/akshaya belongs to Akshaya.
-   - main is for integration.
-2. **Workflow:** Do not commit to another teammate's branch. Push to your assigned branch. Create PRs for integration into main.
-3. **Commit Messages:** Keep them concise and descriptive of the *why*.
+1. `frontend/nikhil`, `backend/ramraj`, `ai/sanju`, and `infra/akshaya` retain their owners; `main` is stable integration.
+2. Document contracts before parallel implementation. PRs name contract, scenario, migration impact and demo effect.
+3. Do not commit to another owner’s branch, force-push shared history, or merge an untested payment/idempotency change.

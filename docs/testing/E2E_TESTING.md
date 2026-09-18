@@ -1,6 +1,5 @@
-# E2E TESTING
+# End-to-End Testing
 
-> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+Playwright covers the dashboard’s visible proof: synthetic label, active policy, incoming source cards, validation/rejection state, consensus value, trigger outcome, wallet balance change, audit timeline and idempotency retry. Run against seeded deterministic scenarios; do not rely on wall-clock weather or a remote provider.
 
-Purpose:
-End-to-end testing guidelines.
+The key assertion after retry is not just a success toast: it is the unchanged synthetic wallet balance and one displayed transaction ID.

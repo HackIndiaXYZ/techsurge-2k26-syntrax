@@ -1,19 +1,7 @@
-# 04 ENGINEERING OPERATING MODEL
+# Engineering Operating Model
 
-## Parallel Development Readiness
-To support 4 people working simultaneously during the 17-hour build:
+Work in thin vertical slices, starting with a fixed mock response and ending with the displayed audit evidence. The order is: freeze canonical schemas; publish FastAPI/OpenAPI contracts; provide mock fixtures; implement direct ingestion-to-ledger flow; wire the dashboard; then rehearse failure and retry paths. This lets frontend and backend work independently until integration.
 
-1. **API-Contract-First Development:** Backend defines API contracts (e.g., OpenAPI schemas or markdown contracts in docs/architecture/API_CONTRACTS.md) before implementation.
-2. **Mock-Driven Frontend & AI:** Frontend (Nikhil) and AI (Sanju) develop against mock data and these API contracts.
-3. **Database Ownership:** Infra (Akshaya) provisions schemas/migrations for Backend.
-4. **Git Workflow:** 
-   - Feature branches belong to individuals (frontend/nikhil, backend/ramraj, etc.).
-   - Pull Requests to main must be reviewed and tested locally.
-5. **Integration Protocol:** Integration happens on main only when tests pass and contracts are fulfilled.
+The core path stays deterministic and synchronous for the MVP. Any optional component must be behind an interface and must not delay policy adjudication. Each PR changes one owner area, names the contract it implements, and includes its applicable scenario from [Test Plan](testing/TEST_PLAN.md).
 
-## Technology Stack Baseline
-- **Frontend:** Next.js, React, TypeScript, Tailwind CSS, shadcn/ui.
-- **Backend:** Python, FastAPI, Pydantic, SQLAlchemy, Alembic.
-- **Data:** PostgreSQL, Supabase, pgvector.
-- **AI:** Claude, Gemini, OpenRouter.
-- **Cloud:** Vercel, Render.
+The selected stack and deliberate exclusions are in [Tech Stack](engineering/TECH_STACK.md). Team workflow is in [Git Workflow](engineering/GIT_WORKFLOW.md).
