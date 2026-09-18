@@ -249,3 +249,55 @@ class SettlementNotificationOutput(BaseModel):
     fallback_used: bool = Field(default=False)
     method: str = Field(default="template")
 
+
+
+# ============================================================
+# Canonical Unified Event Contract
+# ============================================================
+
+class BackendEventContract(BaseModel):
+    """The canonical event contract accepted from the authoritative backend."""
+    event_id: str
+    policy_id: str
+    timestamp: str | datetime
+    
+    # Telemetry
+    source_observations: list[dict] = Field(default_factory=list)
+    validated_observations: list[dict] = Field(default_factory=list)
+    
+    # Consensus
+    consensus_value: Optional[float] = None
+    consensus_status: str = "PENDING"
+    outlier_sources: list[str] = Field(default_factory=list)
+    
+    # Trigger
+    trigger_status: str = "PENDING"
+    trigger_reason: Optional[str] = None
+    
+    # Settlement
+    payout_amount_paise: Optional[int] = None
+    settlement_status: str = "PENDING"
+    idempotency_status: Optional[str] = None
+
+
+class FrontendAIResponse(BaseModel):
+    """The unified AI response consumable by the frontend."""
+    event_id: str
+    
+    # Metadata boundaries
+    is_advisory: bool = True
+    is_synthetic: bool = True
+    fallback_used: bool = False
+    basis_risk_notice: str = (
+        "The prototype settles against a predefined weather index; the index does not "
+        "guarantee that the payout equals the policyholder's actual loss."
+    )
+    
+    # Analysis blocks
+    anomaly: Optional[AnomalyOutput] = None
+    explanation_en: Optional[ExplanationOutput] = None
+    explanation_hi: Optional[ExplanationOutput] = None
+    explanation_te: Optional[ExplanationOutput] = None
+    notification_en: Optional[SettlementNotificationOutput] = None
+    notification_hi: Optional[SettlementNotificationOutput] = None
+    notification_te: Optional[SettlementNotificationOutput] = None
