@@ -1,6 +1,11 @@
-# AI TOOL ASSIGNMENTS
+# AI Tool Assignments
 
-> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+| Need | MVP approach | AI status |
+| --- | --- | --- |
+| Policy and payout decision | Versioned deterministic code | Prohibited |
+| Data validation and consensus | Deterministic rules and tests | Prohibited |
+| Scenario generation | Seeded JSON fixtures | Optional offline assistance |
+| Outlier insight | Source comparison and fixed rules | Optional advisory model |
+| Judge-facing explanation | Audit timeline and fixed templates | Optional read-only prose aid |
 
-Purpose:
-Assignments of different AI tools to specific tasks.
+No vendor model, agent framework, vector database, or MCP server is required to implement the MVP.

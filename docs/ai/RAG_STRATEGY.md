@@ -1,6 +1,5 @@
-# RAG STRATEGY
+# RAG Strategy
 
-> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
+**Status: not selected for MVP.** The knowledge corpus is small, structured, and maintained in this repository; a direct audit projection and linked markdown pages are more reliable than retrieval augmentation. pgvector and embedding services are deliberately excluded.
 
-Purpose:
-Strategy for Retrieval-Augmented Generation.
+A future read-only help assistant could retrieve the official PS, ADRs, policy wording, and production-gap notes. It would not retrieve customer data or provide decision authority.

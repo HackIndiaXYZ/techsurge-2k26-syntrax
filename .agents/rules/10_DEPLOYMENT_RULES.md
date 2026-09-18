@@ -1,5 +1,5 @@
-# 10 DEPLOYMENT RULES
+# PS-F03 Deployment Rules
 
-1. **Ownership:** Akshaya manages deployment.
-2. **Platforms:** Vercel (Frontend), Render/Railway (Backend).
-3. **Continuous Integration:** Deploy early and often to catch integration issues before the final hour.
+1. Akshaya owns optional deployment: Vercel frontend, Render FastAPI, Supabase PostgreSQL, Railway fallback.
+2. Deploy after local core scenarios pass; use server-side provider secrets and configured CORS.
+3. Prepare a deterministic local fallback; deployment is not a production availability claim.

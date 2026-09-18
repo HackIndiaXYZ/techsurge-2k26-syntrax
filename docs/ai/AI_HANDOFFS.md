@@ -1,6 +1,3 @@
-# AI HANDOFFS
+# AI Handoffs
 
-> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
-
-Purpose:
-How AI hands off tasks to humans or other tools.
+Sanju hands the team a versioned scenario catalogue, expected labels, optional feature proposal, and deterministic-boundary checklist. Backend owns decision/payout correctness; frontend owns clearly labelled presentation; infrastructure owns data isolation and feature flags. An optional AI output is never a prerequisite for closing a payout or demo scenario.

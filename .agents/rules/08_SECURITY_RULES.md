@@ -1,5 +1,6 @@
-# 08 SECURITY RULES
+# PS-F03 Security Rules
 
-1. **No Secrets:** Never commit passwords, API keys, or tokens.
-2. **Env Vars:** Use .env files locally. Do not track them in git.
-3. **Validation:** Always validate inputs on the backend.
+1. Never commit secrets, real account data, customer data, provider credentials or payment identifiers.
+2. Validate all incoming telemetry and operator actions on the backend; rate-limit and restrict CORS.
+3. Enforce synthetic-only payout boundaries, idempotency, transaction integrity and audit evidence.
+4. Do not claim production-grade security, licensing or regulatory approval.

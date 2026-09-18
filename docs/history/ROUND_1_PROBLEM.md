@@ -1,6 +1,3 @@
-# ROUND 1 PROBLEM
+# Historical Round 1 Problem
 
-> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
-
-Purpose:
-The problem statement provided in Round 1.
+**Status: historical and superseded.** The Round 1 problem is not the active implementation problem. The official active problem is PS-F03; see [Problem Statement](../round2/PROBLEM_STATEMENT.md).

@@ -1,5 +1,6 @@
-# 03 CODE RULES
+# PS-F03 Code Rules
 
-1. **Languages:** TypeScript (Frontend), Python (Backend/AI).
-2. **Frameworks:** Next.js, React, Tailwind, FastAPI.
-3. **Quality:** Write clean, readable code. Avoid deep nesting. Do not obsess over perfection.
+1. Use TypeScript/Next.js for UI and Python/FastAPI for backend; use typed Pydantic and ORM models.
+2. Use canonical domain names and integer paise for synthetic amounts; use UTC timestamps and server-generated IDs.
+3. Write pure, testable functions for validation, consensus and trigger evaluation. Never calculate a payout in the browser.
+4. Do not implement product code during documentation-only work unless a later explicit task asks for it.

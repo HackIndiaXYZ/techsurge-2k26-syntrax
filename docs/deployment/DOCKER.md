@@ -1,6 +1,3 @@
-# DOCKER
+# Docker
 
-> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
-
-Purpose:
-Docker configuration and usage.
+**Status: optional local-development aid.** A small compose file may run frontend, backend and PostgreSQL for repeatable local rehearsal, but Docker is not required for the PS-F03 deliverable. Do not spend the core build window perfecting images, registries, orchestration or production hardening.

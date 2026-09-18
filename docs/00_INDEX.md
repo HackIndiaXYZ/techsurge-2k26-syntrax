@@ -1,15 +1,38 @@
-# 00 INDEX
+# SYNTRAX PS-F03 Knowledge Base
 
-Purpose: Navigation map for the entire knowledge base.
+The repository is the team source of truth. The official problem PDF is recorded in [Source Material Index](reference/SOURCE_MATERIAL_INDEX.md). Every requirement below is explicitly classified as organizer requirement, verified fact, team design decision, team assumption, optional idea, or out of scope.
 
-- **docs/** is the central knowledge base for the project.
-- **GitHub is the project source of truth.** Chat logs are temporary; key decisions must be documented here.
-- **Round 1 history and Round 2 implementation must remain separate.**
+## Start here
 
-## Core Documents
-- [PROJECT MEMORY](PROJECT_MEMORY.md): Crucial context for agents and teammates.
-- [01 HACKATHON CONTEXT](01_HACKATHON_CONTEXT.md): Details about TechSurge 2K26 / Kalachakra.
-- [02 TEAM](02_TEAM.md): Members and responsibilities.
-- [03 PROJECT IDENTITY](03_PROJECT_IDENTITY.md): SYNTRAX vision and identity.
-- [04 ENGINEERING OPERATING MODEL](04_ENGINEERING_OPERATING_MODEL.md): Workflows and parallel development rules.
-- [05 KNOWN VS UNKNOWN](05_KNOWN_VS_UNKNOWN.md): Strict boundaries on what is known.
+1. [Project Memory](PROJECT_MEMORY.md) - scope, safety boundary, and canonical flow.
+2. [Problem Statement](round2/PROBLEM_STATEMENT.md) and [PS Analysis](round2/PS_ANALYSIS.md) - official requirements separated from decisions.
+3. [MVP Scope](round2/MVP_SCOPE.md) - what must be built in 17 hours.
+4. [Data Model](database/DATA_MODEL.md), [API Contracts](architecture/API_CONTRACTS.md), and [System Architecture](architecture/SYSTEM_ARCHITECTURE.md) - build contracts.
+5. [Demo Strategy](hackathon/DEMO_STRATEGY.md) and [Testing Strategy](testing/TESTING_STRATEGY.md) - prove the flow and failure modes.
+
+## Core build contracts
+
+- [Policy Model](architecture/POLICY_MODEL.md), [Weather Telemetry](architecture/WEATHER_TELEMETRY.md), and [Consensus and Trigger Engine](architecture/CONSENSUS_AND_TRIGGER_ENGINE.md)
+- [Synthetic Payout Architecture](fintech/PAYMENT_ARCHITECTURE.md), [Idempotency](fintech/IDEMPOTENCY.md), [Synthetic Wallet](fintech/SYNTHETIC_WALLET.md), and [Audit Trail](fintech/AUDIT_TRAIL.md)
+- [Failure Injection and Metrics](testing/FAILURE_INJECTION_AND_METRICS.md), [Evaluation Traceability](hackathon/EVALUATION_TRACEABILITY.md), and [Production Gap](fintech/PRODUCTION_GAP.md)
+
+## Areas
+
+| Area | Use it for |
+| --- | --- |
+| `round2/` | PS-F03 requirements, scope, personas, acceptance criteria |
+| `architecture/` | components, data flow, API, consensus and trigger decisions |
+| `database/` | canonical entities, PostgreSQL schema, seeds and ownership |
+| `fintech/` | parametric-insurance concepts, payout simulation, risk framing |
+| `ai/` | optional support only; deterministic payment boundary |
+| `engineering/` | ownership, contracts, integration, development rules |
+| `security/` | prototype controls and production gaps |
+| `testing/` | scenario matrix, metrics, demo rehearsal |
+| `deployment/` | small deployment plan and environment rules |
+| `hackathon/` | 17-hour plan, judge flow, traceability |
+| `decisions/` | assumptions, tradeoffs, ADRs, unresolved items |
+| `operations/` | handoffs, blocker and release templates |
+| `reference/` | terminology, sources, quick reference |
+| `history/` | explicitly historical Round 1 record |
+
+See [Document Inventory](DOCUMENT_INVENTORY.md) for the classification and intended use of every pre-existing documentation file.

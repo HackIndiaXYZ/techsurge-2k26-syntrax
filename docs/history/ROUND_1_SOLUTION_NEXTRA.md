@@ -1,6 +1,3 @@
-# ROUND 1 SOLUTION NEXTRA
+# Historical Round 1 Solution NEXTRA
 
-> STATUS: PLACEHOLDER — TO BE POPULATED FROM VERIFIED PROJECT CONTEXT.
-
-Purpose:
-Details of the NEXTRA solution built in Round 1.
+**Status: historical and superseded.** NEXTRA was a prior employment-direction concept. It has no role in PS-F03, which is an autonomous parametric climate-insurance and simulated-settlement prototype.

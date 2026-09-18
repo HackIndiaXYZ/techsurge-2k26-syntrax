@@ -1,9 +1,5 @@
-# 03 PROJECT IDENTITY
+# SYNTRAX Project Identity
 
-**Project Name:** SYNTRAX (Team for TechSurge 2K26)
+SYNTRAX is building a transparent PS-F03 prototype that demonstrates how a predefined climate parameter can produce a fast, explainable, simulated settlement. The product identity is not “AI pays insurance” or “a real wallet.” It is an evidence-led pipeline that lets a judge inspect telemetry, rejected data, consensus, deterministic policy evaluation, one safe payout effect, and an audit trail.
 
-## Identity
-- **Round 1 Identity (Historical):** Built the NEXTRA concept addressing employment and technical workforce issues.
-- **Round 2 Identity (Current):** A highly adaptable, fast-executing engineering team. We are prepared with a robust tech stack (Next.js, FastAPI, Supabase, AI tools) and parallel-development workflows to tackle the *unknown* live problem statement.
-
-**Crucial Note:** We do NOT anchor to NEXTRA or FinTech for Round 2 until the live problem statement explicitly justifies it.
+Round 1 NEXTRA material is historical and isolated under `docs/history/`. It is not a feature, model, schema, or user journey in this project.

@@ -1,42 +1,34 @@
-# SYNTRAX PROJECT MEMORY
+# SYNTRAX Project Memory
 
-## 1. Hackathon Context
-**Event:** TechSurge 2K26 / Kalachakra
-**Status:** Round 1 completed (Shortlisted). Preparing for live Round 2.
-**Constraint:** 17-hour effective engineering constraint.
+## Current source of truth
 
-## 2. Round 1 vs Round 2 Strict Separation
-**Round 1 (Historical):**
-- Submitted as a PPT/PDF challenge.
-- Focused on the employment/technical-workforce direction based on student interviews and recurring findings.
-- **NEXTRA** was our conceptual solution (featuring Capability Passport, Opportunity Bridge, and Resource-Constrained Mode).
-- **Rule:** NEXTRA is historical context. Do NOT assume it is the Round 2 product.
+**Official PS requirement:** TechSurge 2K26 / Kalachakra PS-F03 is *Autonomous Parametric Climate Insurance & Instant Settlement Engine*. The official flow is multi-source telemetry ingestion, validation/consensus, deterministic trigger evaluation, idempotent payout execution, and an audit trail. The prototype must work with public or synthetic weather data and synthetic wallets; no real money, accounts, payment rails, or provider contracts are allowed.
 
-**Round 2 (Live/Unknown):**
-- Requires a working prototype.
-- **The actual problem statement is REVEALED LIVE and is currently UNKNOWN.**
-- Do NOT invent a Round 2 problem.
-- Do NOT assume FinTech is the Round 2 track, although FinTech concepts were studied during preparation.
-- Do NOT build application features based on NEXTRA unless the actual Round 2 problem later justifies them.
+**Team design decision:** Build one small, transparent vertical slice: a rainfall policy for a synthetic micro-region, three simulated sources, 2-of-3 consensus, deterministic evaluation, and a PostgreSQL-backed synthetic wallet ledger. The detailed rationale is in [PS Analysis](round2/PS_ANALYSIS.md).
 
-## 3. Team & Ownership
-- **Nikhil (Laptop 1):** Frontend + Product Experience + Integration Lead
-- **Ramraj (Laptop 2):** Backend / Financial Systems
-- **Sanju (Laptop 3):** AI/ML + Agents + RAG
-- **Akshaya (Laptop 4):** Infrastructure + Database + Security + Testing
+**Team assumption:** The effective build window is approximately 17 hours. Time-sensitive design decisions therefore favor a modular monolith over distributed infrastructure.
 
-## 4. Git Workflow & Branches
-- main (Integration)
-- frontend/nikhil
-- backend/ramraj
-- ai/sanju
-- infra/akshaya
-- **Rule:** Parallel development driven by API-contract-first design.
+## Product boundary
 
-## 5. Technology Baseline
-- **Dev:** VS Code, Antigravity, Git/GitHub, Node.js, pnpm, Python, uv, Docker/Compose, Postman, Playwright.
-- **Frontend:** Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion.
-- **Backend:** Python, FastAPI, Pydantic, SQLAlchemy, Alembic, Uvicorn, httpx.
-- **Data:** PostgreSQL, Supabase, pgvector. (Redis only if justified).
-- **AI:** Claude, Gemini, OpenRouter, Hugging Face, Antigravity, Codex, Copilot. (RAG/agents only if required).
-- **Cloud:** Vercel, Render, Railway (backup), Cloudflare.
+This is not an insurer, wallet, UPI application, or production payment system. It simulates a parametric payout and shows evidence explaining why it happened. Basis risk, false triggers, and missed triggers are explicit limitations.
+
+## Canonical MVP
+
+`telemetry -> validation -> consensus -> trigger evaluation -> payout instruction -> synthetic wallet credit -> audit event`
+
+The canonical entity definitions are in [Data Model](database/DATA_MODEL.md). No other document may redefine those entities.
+
+## Team and branches
+
+| Owner | Responsibility | Branch |
+| --- | --- | --- |
+| Nikhil | Frontend, product experience, integration lead | `frontend/nikhil` |
+| Ramraj | Backend and financial systems | `backend/ramraj` |
+| Sanju | AI/ML, agents, RAG evaluation | `ai/sanju` |
+| Akshaya | Infrastructure, database, security, testing | `infra/akshaya` |
+
+`main` is the stable integration branch. Contracts are agreed before parallel implementation; see [Git Workflow](engineering/GIT_WORKFLOW.md).
+
+## Historical note
+
+The Round 1 NEXTRA employment-direction concept is historical only. It is retained in `docs/history/` to preserve team context and must not influence PS-F03 implementation.
