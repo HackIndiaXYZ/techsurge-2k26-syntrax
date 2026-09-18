@@ -156,3 +156,4 @@ def test_no_call_for_duplicate_idempotent_event():
     event.idempotency_status = "DUPLICATE"
     req = map_event_to_voice_request(event, "+123")
     assert req is None
+
