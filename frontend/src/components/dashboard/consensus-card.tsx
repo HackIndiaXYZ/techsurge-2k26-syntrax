@@ -1,5 +1,4 @@
 "use client";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -80,7 +79,7 @@ export function ConsensusCard({ consensus, threshold }: { consensus: Consensus; 
                 </TableCell>
                 <TableCell className="text-right">
                   <span className={`font-mono font-semibold text-base ${!source.is_in_consensus_group ? "line-through text-muted-foreground" : ""}`}>
-                    {source.value} {source.unit}
+                    {source.metrics.rainfall_mm} mm
                   </span>
                 </TableCell>
                 <TableCell>{sourceStatusBadge(source.validation_status, source.is_in_consensus_group)}</TableCell>

@@ -19,7 +19,7 @@ export function AiInsightCard({ insight }: { insight: AiInsight | null }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm">{insight.summary}</p>
+        <p className="text-sm">{insight.explanations.en}</p>
 
         {insight.anomaly_explanation && (
           <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3">
@@ -28,13 +28,13 @@ export function AiInsightCard({ insight }: { insight: AiInsight | null }) {
           </div>
         )}
 
-        {insight.local_language_note && (
+        {insight.explanations.hi && (
           <div className="rounded-lg bg-muted/50 border p-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Globe className="h-3.5 w-3.5 text-muted-foreground" />
               <p className="text-xs font-medium text-muted-foreground">Local Language</p>
             </div>
-            <p className="text-sm">{insight.local_language_note}</p>
+            <p className="text-sm">{insight.explanations.hi}</p>
           </div>
         )}
       </CardContent>
