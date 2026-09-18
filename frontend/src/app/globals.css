@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+@theme {
+  --color-tf-bg: #0a0e14;
+  --color-tf-surface: #0f1419;
+  --color-tf-card: #131a21;
+  --color-tf-card-hover: #182028;
+  --color-tf-border: #1e2a35;
+  --color-tf-border-light: #253340;
+  --color-tf-green: #10b981;
+  --color-tf-green-dark: #059669;
+  --color-tf-green-glow: rgba(16, 185, 129, 0.15);
+  --color-tf-green-subtle: rgba(16, 185, 129, 0.08);
+  --color-tf-red: #ef4444;
+  --color-tf-orange: #f59e0b;
+  --color-tf-text: #e2e8f0;
+  --color-tf-text-muted: #94a3b8;
+  --color-tf-text-dim: #64748b;
+  --color-tf-sidebar: #0c1117;
+  --color-tf-header: #0c1117;
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    background-color: var(--color-tf-bg);
+    color: var(--color-tf-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-tf-bg);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-tf-border-light);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-tf-text-dim);
+  }
+}
+
+@layer components {
+  .tf-card {
+    background-color: var(--color-tf-card);
+    border: 1px solid var(--color-tf-border);
+    border-radius: 8px;
+    padding: 16px;
+    transition: border-color 0.2s ease;
+  }
+
+  .tf-card:hover {
+    border-color: var(--color-tf-border-light);
+  }
+
+  .tf-metric-card {
+    background-color: var(--color-tf-card);
+    border: 1px solid var(--color-tf-border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .tf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tf-badge-green {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: var(--color-tf-green);
+  }
+
+  .tf-badge-red {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: var(--color-tf-red);
+  }
+
+  .tf-badge-orange {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: var(--color-tf-orange);
+  }
+
+  .tf-badge-blue {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+  }
+
+  .tf-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+  }
+
+  .tf-btn-primary {
+    background-color: var(--color-tf-green);
+    color: #0a0e14;
+    font-weight: 600;
+  }
+
+  .tf-btn-primary:hover {
+    background-color: var(--color-tf-green-dark);
+  }
+
+  .tf-btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-tf-border);
+    color: var(--color-tf-text);
+  }
+
+  .tf-btn-outline:hover {
+    border-color: var(--color-tf-green);
+    color: var(--color-tf-green);
+  }
+
+  .tf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .tf-table th {
+    text-align: left;
+    padding: 10px 12px;
+    color: var(--color-tf-text-dim);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--color-tf-border);
+  }
+
+  .tf-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-tf-border);
+    color: var(--color-tf-text-muted);
+  }
+
+  .tf-table tbody tr:hover {
+    background-color: var(--color-tf-card-hover);
+  }
+
+  .tf-input {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: var(--color-tf-surface);
+    border: 1px solid var(--color-tf-border);
+    border-radius: 6px;
+    color: var(--color-tf-text);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .tf-input:focus {
+    border-color: var(--color-tf-green);
+  }
+
+  .tf-input::placeholder {
+    color: var(--color-tf-text-dim);
+  }
+}
+
+/* Sparkline mini chart placeholder */
+.sparkline-container {
+  position: relative;
+  width: 100%;
+  height: 60px;
+}
+
+/* Pipeline connector */
+.pipeline-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-tf-green);
+  z-index: 0;
+}
+
+/* Pulse animation for status dots */
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+}
+
+.pulse-dot {
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+/* Login background overlay */
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(10, 14, 20, 0.85), rgba(10, 14, 20, 0.6));
+}
+
+/* Active nav item */
+.nav-active {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-left: 3px solid var(--color-tf-green);
+  color: var(--color-tf-green) !important;
+}

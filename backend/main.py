@@ -103,6 +103,16 @@ app.include_router(payouts.router)
 app.include_router(wallets.router)
 app.include_router(audit.router)
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from ai.router import router as ai_router
+    app.include_router(ai_router)
+    logger.info("AI router mounted successfully.")
+except ImportError as e:
+    logger.error(f"Could not import AI router: {e}")
+
 
 # ── Dev entrypoint ────────────────────────────────────────────────────────────
 if __name__ == "__main__":
