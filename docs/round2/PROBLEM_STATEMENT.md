@@ -1,11 +1,50 @@
-# PS-F03 Official Problem Statement
+# PROBLEM STATEMENT — PS-F03
 
-## Official PS requirement
+**Status:** ACTIVE (Round 2 live problem — revealed at TechSurge 2K26 / Kalachakra)
+**Updated by:** Ramraj (backend/ramraj) — 2026-09-18
 
-Architect a fully automated, zero-touch parametric insurance engine that continuously streams weather telemetry, deterministically adjudicates policies against pre-agreed trigger conditions, and executes sub-minute payouts directly to digital wallets without a manual claim. The organizer-specified workflow is multi-source telemetry ingestion, validation/consensus, deterministic trigger evaluation, idempotent payout execution, and audit trail.
+---
 
-The minimum solution uses simulated or public weather telemetry for a defined micro-region, evaluates a defined policy trigger, and makes a simulated payout to a synthetic wallet. The PS permits public weather and earth-observation data, public UPI documentation as a reference, documented trigger structures, and synthetic policies/wallets/payouts.
+## PS-F03 | Autonomous Parametric Climate Insurance & Instant Settlement Engine
 
-## Official safety boundary
+### Problem
 
-No real money, bank or wallet accounts, UPI/FedNow/stablecoin rails, production provider contracts, insurer licenses, regulatory approvals, or unproven production-security claims. Basis risk must be discussed plainly. Liquidity management, Byzantine-fault-tolerant consensus, and dual-rail routing are optional extensions, not MVP requirements.
+Traditional crop/climate insurance relies on manual claims, field assessments, and slow
+bureaucratic settlement processes. Farmers in climate-risk zones (e.g., flood-prone river
+deltas) suffer long delays between a weather event and receiving any financial relief.
+
+### Required Solution (Prototype)
+
+Build an autonomous, rules-based parametric insurance engine that:
+
+1. Ingests simulated multi-source weather telemetry (rainfall)
+2. Validates and deduplicates observations
+3. Establishes authoritative consensus across multiple sources
+4. Evaluates a predefined parametric trigger rule deterministically
+5. Executes an instant simulated payout to a synthetic wallet — if and only if the trigger fires
+6. Records a complete, traceable audit trail of every state transition
+
+### Prototype Constraints
+
+- **No real money** — synthetic ledger only
+- **No real bank account or wallet**
+- **No real UPI**
+- **No production payment gateway**
+- **No blockchain**
+- **No production weather-provider contracts**
+- **No production financial claims**
+
+### Frozen Demo Parameters
+
+| Parameter | Value |
+|---|---|
+| Weather metric | Rainfall (mm) |
+| Trigger threshold | ≥ 100 mm |
+| Observation window | 60 minutes |
+| Simulated sources | 3 (A, B, C) |
+| Consensus quorum | 2 of 3 minimum |
+| Consensus method | Median |
+| Tolerance | ≤ 5 mm (inclusive) |
+| Demo payout | ₹10,000 = 1,000,000 paise |
+| Money representation | Integer paise (never float) |
+| Micro-region | Kaveri Delta (demo seed) |
