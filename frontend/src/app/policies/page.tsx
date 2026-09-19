@@ -40,9 +40,10 @@ export default function PoliciesPage() {
     );
   }
 
-  const formatDate = (iso: string) => {
+  const formatDate = (iso: string | null | undefined) => {
+    if (!iso) return 'N/A';
     try { return new Date(iso).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }); }
-    catch { return iso; }
+    catch { return String(iso); }
   };
 
   return (
