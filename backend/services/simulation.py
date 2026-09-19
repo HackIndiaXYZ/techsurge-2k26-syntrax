@@ -1,3 +1,4 @@
+from sqlalchemy.orm import selectinload
 """
 services/simulation.py — Full pipeline orchestrator for POST /simulations.
 
@@ -13,7 +14,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+
 
 from models.policy import Policy
 from models.wallet import Wallet
@@ -217,36 +218,37 @@ async def run_simulation(
                 ),
             )
         else:
-            # Payout was None because a payout for this policy already exists
+            # Payout was None because wallet was missing or skip
             settlement_schema = SettlementResult(
-                status="DUPLICATE",
-                reason="Already settled for this policy.",
+                status="FAILED",
+                reason="Failed to initialize payout.",
             )
 
-            # Fetch updated wallet state with eager load for transactions
-            wallet_rec = await db.scalar(
-                select(Wallet)
-                .where(Wallet.policy_id == uuid.UUID(request.policy_id))
-                .options(selectinload(Wallet.transactions))
-            )
-            if wallet_rec:
-                # Only show before/after when wallet was actually credited (NEW + provider SUCCESS)
-                if idempotency_status == "NEW" and wallet_rec.transactions:
-                    latest_tx = wallet_rec.transactions[0]
-                    before = latest_tx.balance_before_paise
-                    after = latest_tx.balance_after_paise
-                    credited = True
-                else:
-                    before = None
-                    after = wallet_rec.balance_paise
-                    credited = False
+        # Fetch updated wallet state with eager load for transactions
+        
+        wallet_rec = await db.scalar(
+            select(Wallet)
+            .where(Wallet.policy_id == uuid.UUID(request.policy_id))
+            .options(selectinload(Wallet.transactions))
+        )
+        if wallet_rec:
+            # Only show before/after when wallet was actually credited (NEW + provider SUCCESS)
+            if idempotency_status == "NEW" and wallet_rec.transactions:
+                latest_tx = wallet_rec.transactions[0]
+                before = latest_tx.balance_before_paise
+                after = latest_tx.balance_after_paise
+                credited = True
+            else:
+                before = None
+                after = wallet_rec.balance_paise
+                credited = False
 
-                wallet_schema = WalletResult(
-                    wallet_id=str(wallet_rec.id),
-                    balance_before_paise=before if credited else wallet_rec.balance_paise,
-                    balance_after_paise=after,
-                    credited=credited,
-                )
+            wallet_schema = WalletResult(
+                wallet_id=str(wallet_rec.id),
+                balance_before_paise=before if credited else wallet_rec.balance_paise,
+                balance_after_paise=after,
+                credited=credited,
+            )
     elif str(trigger_record.trigger_status) == "TRIGGER_BLOCKED_NO_CONSENSUS":
         settlement_schema = SettlementResult(
             status="SKIPPED",
