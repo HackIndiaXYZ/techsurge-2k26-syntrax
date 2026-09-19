@@ -65,25 +65,29 @@ async def evaluate_trigger(
         trigger_status = TriggerStatus.TRIGGER_BLOCKED_NO_CONSENSUS
         reason = "No authoritative consensus established. Trigger blocked."
 
+    elif not trigger_rule:
+        trigger_status = TriggerStatus.NOT_TRIGGERED
+        reason = f"Policy {policy.id!r} is missing trigger rule configuration. Failing safely."
+
     elif not policy.is_currently_valid():
         trigger_status = TriggerStatus.NOT_TRIGGERED
         reason = f"Policy {policy.id!r} is not currently active or within validity window."
 
     elif (
         consensus_result.consensus_value_mm is not None
-        and float(consensus_result.consensus_value_mm) >= float(threshold)
+        and float(consensus_result.consensus_value_mm) >= float(trigger_rule.threshold_value)
     ):
         trigger_status = TriggerStatus.TRIGGERED
         reason = (
             f"Consensus rainfall {float(consensus_result.consensus_value_mm):.1f} mm "
-            f">= threshold {float(threshold):.1f} mm. Trigger fires."
+            f">= threshold {float(trigger_rule.threshold_value):.1f} mm. Trigger fires."
         )
 
     else:
         trigger_status = TriggerStatus.NOT_TRIGGERED
         reason = (
             f"Consensus rainfall {consensus_result.consensus_value_mm} mm "
-            f"< threshold {float(threshold):.1f} mm. Trigger does not fire."
+            f"< threshold {float(trigger_rule.threshold_value):.1f} mm. Trigger does not fire."
         )
 
     # ── Persist ──────────────────────────────────────────────────────────────
