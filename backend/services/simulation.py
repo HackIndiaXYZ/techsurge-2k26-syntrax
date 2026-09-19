@@ -212,6 +212,12 @@ async def run_simulation(
                     else "Already settled."
                 ),
             )
+        else:
+            # Payout was None because a payout for this policy already exists
+            settlement_schema = SettlementResult(
+                status="DUPLICATE",
+                reason="Already settled for this policy.",
+            )
 
             # Fetch updated wallet state with eager load for transactions
             wallet_rec = await db.scalar(

@@ -1,6 +1,8 @@
 """
 routers/wallets.py — GET /wallets/{wallet_id}
 """
+import uuid as _uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,9 +24,14 @@ async def get_wallet(
     wallet_id: str,
     db: AsyncSession = Depends(get_db),
 ) -> WalletResponse:
+    try:
+        wid = _uuid.UUID(wallet_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail={"error": "INVALID_ID", "message": f"Invalid wallet_id: {wallet_id!r}"})
+
     wallet = await db.scalar(
         select(Wallet)
-        .where(Wallet.id == wallet_id)
+        .where(Wallet.id == wid)
         .options(selectinload(Wallet.transactions))
     )
     if wallet is None:
@@ -35,8 +42,8 @@ async def get_wallet(
 
     txs = [
         WalletTransactionResponse(
-            transaction_id=tx.id,
-            payout_id=tx.payout_id,
+            transaction_id=str(tx.id),
+            payout_id=str(tx.payout_id),
             amount_paise=tx.amount_paise,
             balance_before_paise=tx.balance_before_paise,
             balance_after_paise=tx.balance_after_paise,
@@ -46,8 +53,8 @@ async def get_wallet(
     ]
 
     return WalletResponse(
-        wallet_id=wallet.id,
-        policy_id=wallet.policy_id,
+        wallet_id=str(wallet.id),
+        policy_id=str(wallet.policy_id),
         balance_paise=wallet.balance_paise,
         balance_inr_display=_paise_to_inr_display(wallet.balance_paise),
         currency=wallet.currency,

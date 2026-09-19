@@ -1,6 +1,8 @@
 """
 routers/payouts.py — GET /payouts/{payout_id}
 """
+import uuid as _uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,7 +22,12 @@ async def get_payout(
     payout_id: str,
     db: AsyncSession = Depends(get_db),
 ) -> PayoutResponse:
-    payout = await db.get(Payout, payout_id)
+    try:
+        pid = _uuid.UUID(payout_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail={"error": "INVALID_ID", "message": f"Invalid payout_id: {payout_id!r}"})
+
+    payout = await db.get(Payout, pid)
     if payout is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -28,13 +35,13 @@ async def get_payout(
         )
 
     return PayoutResponse(
-        payout_id=payout.id,
-        policy_id=payout.policy_id,
-        trigger_evaluation_id=payout.trigger_evaluation_id,
-        status=payout.status.value,
+        payout_id=str(payout.id),
+        policy_id=str(payout.policy_id),
+        trigger_evaluation_id=str(payout.trigger_evaluation_id) if payout.trigger_evaluation_id else None,
+        status=payout.status.value if hasattr(payout.status, 'value') else str(payout.status),
         amount_paise=payout.amount_paise,
         amount_inr_display=_paise_to_inr_display(payout.amount_paise),
-        idempotency_key=payout.idempotency_key,
+        idempotency_key=str(payout.idempotency_key) if payout.idempotency_key else None,
         failure_reason=payout.failure_reason,
         created_at=payout.created_at,
     )

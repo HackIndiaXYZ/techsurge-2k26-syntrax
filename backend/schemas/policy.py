@@ -18,6 +18,6 @@ class PolicyResponse(BaseModel):
     payout_amount_paise: int
     payout_amount_inr_display: str
     currency: str
-    valid_from: datetime
-    valid_until: datetime
+    valid_from: datetime | None = None
+    valid_until: datetime | None = None
 

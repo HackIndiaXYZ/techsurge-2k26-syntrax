@@ -96,23 +96,38 @@ async def settle_payout(
         )
         return existing, "ALREADY_SETTLED"
 
+    # ── Fetch wallet for the policy ──────────────────────────────────────────
+    from models.wallet import Wallet
+    wallet = await db.scalar(
+        select(Wallet).where(Wallet.policy_id == policy.id)
+    )
+    if not wallet:
+        return None, "FAILED"
+
     # ── Create payout record (PENDING) ───────────────────────────────────────
     payout_id = new_uuid()
+    now_utc = datetime.now(timezone.utc)
     payout = Payout(
         id=payout_id,
         policy_id=policy.id,
         trigger_evaluation_id=trigger_evaluation.id,
+        wallet_id=wallet.id,
         status=PayoutStatus.PENDING.value,
         amount_paise=policy.payout_amount_paise,   # integer paise — NEVER float
+        idempotency_scope="POLICY",
         idempotency_key=idempotency_key,
+        updated_at=now_utc,
     )
 
     try:
         async with db.begin_nested():
             db.add(payout)
             await db.flush()  # triggers UniqueConstraint check
-    except IntegrityError:
+    except IntegrityError as e:
         # Layer 2: Concurrent duplicate caught by DB constraint (savepoint auto-rolled back)
+        import logging
+        logging.getLogger(__name__).error(f"IntegrityError in settle_payout: {e.orig}")
+        
         existing = await db.scalar(
             select(Payout).where(Payout.idempotency_key == idempotency_key)
         )
