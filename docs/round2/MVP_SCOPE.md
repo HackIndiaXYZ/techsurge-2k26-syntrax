@@ -1,22 +1,53 @@
-# PS-F03 MVP Scope
+# MVP SCOPE — PS-F03
 
-## Must build
+**Status:** ACTIVE
+**Updated:** 2026-09-18
+**Owner:** Ramraj (Backend)
 
-- One active synthetic rainfall policy and one synthetic policyholder wallet.
-- Three simulated/public-shaped telemetry sources for one synthetic micro-region.
-- Schema validation, deduplication, freshness/range checks, 2-of-3 consensus, and visible rejected-source reason.
-- Deterministic trigger evaluation, one idempotent simulated payout, double-entry-like wallet transaction record, and append-only audit events.
-- Dashboard screens for the policy-to-audit story, failure injection, and latency measurement.
+---
 
-## Should build
+## In-Scope for PS-F03 MVP Demo
 
-- Seeded normal, flood, missing-source, outlier, duplicate, and retry scenarios.
-- PostgreSQL persistence, one-click demo reset, OpenAPI output, and a deployed frontend/backend.
+| Feature | Status |
+|---|---|
+| 3-source simulated rainfall ingestion | ✅ In scope |
+| Telemetry validation (metric, unit, value, source, region) | ✅ In scope |
+| Deduplication (event_id uniqueness, DB-enforced) | ✅ In scope |
+| Deterministic consensus (median, quorum=2, tolerance=5mm) | ✅ In scope |
+| Deterministic trigger (rainfall ≥ 100mm) | ✅ In scope |
+| Idempotent settlement (DB UniqueConstraint) | ✅ In scope |
+| Synthetic wallet (integer paise, ledger) | ✅ In scope |
+| Append-only audit trail | ✅ In scope |
+| Simulation endpoint (full pipeline) | ✅ In scope |
+| Four demo scenarios (Normal, Corrupted, No-consensus, Duplicate) | ✅ In scope |
+| FastAPI REST API with OpenAPI docs | ✅ In scope |
+| API contracts for Nikhil (frontend) | ✅ In scope |
+| AI event schema for Sanju (post-settlement, read-only) | ✅ In scope (schema defined, delivery TBD) |
+| Integration tests (12 critical scenarios) | ✅ In scope |
+| Alembic migration for schema | ✅ In scope |
+| Demo seed data (region, sources, policy, wallet) | ✅ In scope |
 
-## Only if time
+## Out-of-Scope for MVP
 
-- Read-only policyholder view, SSE instead of one-second polling, offline anomaly score, downloadable audit evidence, or a public data comparison.
+| Feature | Status |
+|---|---|
+| Real money / real payments / real UPI | ❌ Out of scope |
+| Real bank account or real wallet | ❌ Out of scope |
+| Production weather API integration | ❌ Out of scope |
+| Blockchain / distributed ledger | ❌ Out of scope |
+| Message queues (Kafka, RabbitMQ, Celery) | ❌ Out of scope |
+| Multi-region / multi-policy support | ❌ Out of scope (one region, one policy for demo) |
+| Authentication / JWT / OAuth | ❌ TBD (document as TBD, not implemented for MVP) |
+| AI/LLM settlement authority | ❌ FORBIDDEN (not merely out of scope) |
+| Real-time WebSocket updates | ❌ Out of scope (polling is sufficient) |
+| Production monitoring / alerting | ❌ Out of scope |
+| Multi-tenant support | ❌ Out of scope |
 
-## Do not build
+## Frozen Demo Scenarios
 
-- Real payment integration, real accounts, blockchain, Kafka, microservices, Celery/RabbitMQ, real insurer onboarding, liquidity rebalancing, stablecoin routing, autonomous LLM payouts, or excessive animation.
+| Scenario | Input | Expected |
+|---|---|---|
+| NORMAL | A=110, B=108, C=111 | Consensus 110mm → triggered → 1 payout → ₹10,000 |
+| CORRUPTED_SOURCE | A=110, B=108, C=7 | C outlier → A/B consensus 109mm → triggered → 1 payout |
+| NO_CONSENSUS | A=120, B=50, C=5 | Only B in tolerance → quorum fail → NO payout |
+| DUPLICATE_REPLAY | Same valid scenario × N | Exactly 1 wallet credit regardless of N |

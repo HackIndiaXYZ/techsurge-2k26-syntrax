@@ -40,3 +40,4 @@ $output = @{
 }
 
 $output | ConvertTo-Json -Compress | Write-Host
+
