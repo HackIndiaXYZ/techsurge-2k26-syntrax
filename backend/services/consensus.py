@@ -34,6 +34,7 @@ QUORUM: int = 2             # minimum accepted sources
 class SourceObservation:
     source_id: str
     value_mm: float
+    observed_at: datetime | None = None
 
 
 @dataclass
@@ -51,24 +52,14 @@ class ConsensusOutput:
     source_count_outliers: int = 0
 
 
-def evaluate_consensus(observations: list[SourceObservation]) -> ConsensusOutput:
-    """
-    Pure, deterministic consensus evaluation.
-    No DB. No side effects. Fully testable.
-
-    Verified against the four frozen scenarios:
-
-    Scenario 1: A=110, B=108, C=111
-      median=110, all |diff|<=5 → REACHED, consensus=110.0
-
-    Scenario 2: A=110, B=108, C=7
-      median=108, A diff=2✓, B diff=0✓, C diff=101✗
-      accepted=[A,B], consensus=median(110,108)=109.0 → REACHED
-
-    Scenario 3: A=120, B=50, C=5
-      median=50, A diff=70✗, B diff=0✓, C diff=45✗
-      accepted=[B] only, count=1 < 2 → NO_CONSENSUS
-    """
+def evaluate_consensus(
+    observations: list[SourceObservation],
+    stale_threshold_seconds: int = 7200,
+    evaluated_at: datetime | None = None
+) -> ConsensusOutput:
+    if evaluated_at is None:
+        evaluated_at = datetime.now(timezone.utc)
+        
     n = len(observations)
     if n == 0:
         return ConsensusOutput(
@@ -83,19 +74,59 @@ def evaluate_consensus(observations: list[SourceObservation]) -> ConsensusOutput
             source_count_outliers=0,
         )
 
-    values = [o.value_mm for o in observations]
+    # Filter out invalid, stale, or duplicate sources
+    import math
+    valid_obs = {}
+    
+    for obs in observations:
+        # Defect 1: Deduplication (keep first encountered per source, or just safely overwrite since they should be identical if they happen, but to be deterministic, keep the first one seen. Wait, a safer approach is to ignore duplicates if source_id already processed)
+        if obs.source_id in valid_obs:
+            continue
+            
+        # Defect 2: Non-finite values
+        if not math.isfinite(obs.value_mm):
+            continue
+            
+        # Defect 3: Negative rainfall
+        if obs.value_mm < 0:
+            continue
+            
+        # Defect 4: Freshness check
+        if obs.observed_at is None:
+            continue
+        age_seconds = (evaluated_at - obs.observed_at).total_seconds()
+        if age_seconds < 0 or age_seconds > stale_threshold_seconds:
+            continue
+                
+        valid_obs[obs.source_id] = obs
 
-    # Step 1: Median of ALL sources
-    # statistics.median returns float for even-length lists (average of two midpoints).
+    deduped_observations = list(valid_obs.values())
+    
+    if len(deduped_observations) == 0:
+        return ConsensusOutput(
+            status=ConsensusStatus.NO_CONSENSUS,
+            median_all_sources_mm=None,
+            consensus_value_mm=None,
+            accepted_sources=[],
+            outlier_sources=[],
+            reason="No valid, fresh observations available for consensus.",
+            source_count_total=n,
+            source_count_accepted=0,
+            source_count_outliers=0,
+        )
+
+    values = [o.value_mm for o in deduped_observations]
+
+    # Step 1: Median of ALL valid sources
     median_all = statistics.median(values)
 
     # Step 2: Classify each source
     accepted: list[SourceObservation] = []
     outliers: list[SourceObservation] = []
 
-    for obs in observations:
+    for obs in deduped_observations:
         diff = abs(obs.value_mm - median_all)
-        if diff <= TOLERANCE_MM:    # INCLUSIVE tolerance (frozen decision)
+        if diff <= TOLERANCE_MM:    # INCLUSIVE tolerance
             accepted.append(obs)
         else:
             outliers.append(obs)
@@ -131,7 +162,7 @@ def evaluate_consensus(observations: list[SourceObservation]) -> ConsensusOutput
         accepted_sources=accepted_ids,
         outlier_sources=outlier_ids,
         reason=(
-            f"Consensus reached. {len(accepted)}/{n} sources within tolerance. "
+            f"Consensus reached. {len(accepted)}/{len(deduped_observations)} sources within tolerance. "
             f"Consensus value: {consensus_value:.1f} mm."
         ),
         source_count_total=n,
@@ -150,8 +181,15 @@ async def run_consensus(
     """
     Evaluate consensus, persist the result, write audit events, and return the DB record.
     """
+    from config import get_settings
+    settings = get_settings()
+    
     evaluated_at = datetime.now(timezone.utc)
-    output = evaluate_consensus(observations)
+    output = evaluate_consensus(
+        observations=observations, 
+        stale_threshold_seconds=settings.stale_threshold_seconds,
+        evaluated_at=evaluated_at
+    )
 
     # Convert IDs to UUID if they're strings
     import uuid as uuid_mod

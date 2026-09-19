@@ -72,9 +72,9 @@ class TestConsensusAlgorithm:
     def test_scenario1_normal_all_agree(self):
         """Scenario 1: A=110, B=108, C=111 → all within 5mm → REACHED, consensus≈110."""
         obs = [
-            SourceObservation("source-a", 110.0),
-            SourceObservation("source-b", 108.0),
-            SourceObservation("source-c", 111.0),
+            SourceObservation("source-a", 110.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-b", 108.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-c", 111.0, observed_at=datetime.now(timezone.utc)),
         ]
         result = evaluate_consensus(obs)
 
@@ -90,9 +90,9 @@ class TestConsensusAlgorithm:
     def test_scenario2_corrupted_source_c(self):
         """Scenario 2: A=110, B=108, C=7 → C is outlier → REACHED, consensus=109."""
         obs = [
-            SourceObservation("source-a", 110.0),
-            SourceObservation("source-b", 108.0),
-            SourceObservation("source-c", 7.0),
+            SourceObservation("source-a", 110.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-b", 108.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-c", 7.0, observed_at=datetime.now(timezone.utc)),
         ]
         result = evaluate_consensus(obs)
 
@@ -108,9 +108,9 @@ class TestConsensusAlgorithm:
     def test_scenario3_no_consensus(self):
         """Scenario 3: A=120, B=50, C=5 → only B within tolerance → NO_CONSENSUS."""
         obs = [
-            SourceObservation("source-a", 120.0),
-            SourceObservation("source-b", 50.0),
-            SourceObservation("source-c", 5.0),
+            SourceObservation("source-a", 120.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-b", 50.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-c", 5.0, observed_at=datetime.now(timezone.utc)),
         ]
         result = evaluate_consensus(obs)
 
@@ -126,9 +126,9 @@ class TestConsensusAlgorithm:
     def test_exact_tolerance_boundary_inclusive(self):
         """Tolerance is inclusive: diff == 5.0 should be ACCEPTED."""
         obs = [
-            SourceObservation("source-a", 100.0),
-            SourceObservation("source-b", 105.0),   # diff = exactly 5.0
-            SourceObservation("source-c", 100.0),
+            SourceObservation("source-a", 100.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-b", 105.0, observed_at=datetime.now(timezone.utc)),   # diff = exactly 5.0
+            SourceObservation("source-c", 100.0, observed_at=datetime.now(timezone.utc)),
         ]
         result = evaluate_consensus(obs)
         # median = 100.0, B diff = 5.0 ≤ 5.0 → accepted
@@ -137,9 +137,9 @@ class TestConsensusAlgorithm:
     def test_just_over_tolerance_is_outlier(self):
         """diff == 5.1 should be an outlier."""
         obs = [
-            SourceObservation("source-a", 100.0),
-            SourceObservation("source-b", 105.1),   # diff = 5.1 > 5.0
-            SourceObservation("source-c", 100.0),
+            SourceObservation("source-a", 100.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-b", 105.1, observed_at=datetime.now(timezone.utc)),   # diff = 5.1 > 5.0
+            SourceObservation("source-c", 100.0, observed_at=datetime.now(timezone.utc)),
         ]
         result = evaluate_consensus(obs)
         # median = 100.0, B diff = 5.1 > 5.0 → outlier
@@ -153,16 +153,16 @@ class TestConsensusAlgorithm:
 
     def test_single_source_below_quorum(self):
         """One source → quorum not met → NO_CONSENSUS."""
-        obs = [SourceObservation("source-a", 110.0)]
+        obs = [SourceObservation("source-a", 110.0, observed_at=datetime.now(timezone.utc))]
         result = evaluate_consensus(obs)
         assert result.status == ConsensusStatus.NO_CONSENSUS
 
     def test_below_threshold_does_not_affect_consensus(self):
         """Consensus algorithm does not evaluate threshold — trigger service does."""
         obs = [
-            SourceObservation("source-a", 50.0),
-            SourceObservation("source-b", 52.0),
-            SourceObservation("source-c", 51.0),
+            SourceObservation("source-a", 50.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-b", 52.0, observed_at=datetime.now(timezone.utc)),
+            SourceObservation("source-c", 51.0, observed_at=datetime.now(timezone.utc)),
         ]
         result = evaluate_consensus(obs)
         # All within 5mm of median(51) → REACHED, but value < 100mm
@@ -495,9 +495,9 @@ async def test_T13_settlement_idempotency_cooperative_async(db: AsyncSession):
     from models.payout import Payout
 
     obs = [
-        SourceObservation("source-a", 110.0),
-        SourceObservation("source-b", 108.0),
-        SourceObservation("source-c", 111.0),
+        SourceObservation("source-a", 110.0, observed_at=datetime.now(timezone.utc)),
+        SourceObservation("source-b", 108.0, observed_at=datetime.now(timezone.utc)),
+        SourceObservation("source-c", 111.0, observed_at=datetime.now(timezone.utc)),
     ]
     policy = await db.get(Policy, POLICY_ID)
     assert policy is not None
@@ -578,9 +578,9 @@ async def test_T13b_concurrent_independent_sessions(db: AsyncSession):
 
     # Step 1: set up consensus + trigger via fixture session
     obs = [
-        SourceObservation("source-a", 110.0),
-        SourceObservation("source-b", 108.0),
-        SourceObservation("source-c", 111.0),
+        SourceObservation("source-a", 110.0, observed_at=datetime.now(timezone.utc)),
+        SourceObservation("source-b", 108.0, observed_at=datetime.now(timezone.utc)),
+        SourceObservation("source-c", 111.0, observed_at=datetime.now(timezone.utc)),
     ]
     policy = await db.get(Policy, POLICY_ID)
     assert policy is not None

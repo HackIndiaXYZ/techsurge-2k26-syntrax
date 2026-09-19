@@ -102,7 +102,11 @@ async def poll_weather_once():
 
                 try:
                     await ingest_telemetry(ingest_req, correlation_id, db)
-                    accepted_observations.append(SourceObservation(source_id=str(db_source_id), value_mm=rainfall_mm))
+                    accepted_observations.append(SourceObservation(
+                        source_id=str(db_source_id), 
+                        value_mm=rainfall_mm, 
+                        observed_at=obs.observed_at
+                    ))
                 except Exception as e:
                     logger.error(f"Failed to ingest telemetry for {obs.source_name}: {e}")
 

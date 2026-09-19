@@ -122,7 +122,11 @@ async def run_simulation(
 
         if status == "ACCEPTED":
             accepted_observations.append(
-                SourceObservation(source_id=obs.source_id, value_mm=obs.value)
+                SourceObservation(
+                    source_id=obs.source_id, 
+                    value_mm=obs.value,
+                    observed_at=ingested_at
+                )
             )
 
     n_accepted = sum(1 for r in obs_results if r.status == "ACCEPTED")
