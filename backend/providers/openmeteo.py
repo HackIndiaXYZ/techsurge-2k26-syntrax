@@ -87,7 +87,7 @@ class OpenMeteoProvider(WeatherProvider):
             provider_name=self.name
         )
 
-    async def health_check(self) -> bool:
+    async def health_check(self) -> ProviderStatus:
         res = await self.fetch_current(52.52, 13.41)
-        return res.success
+        return ProviderStatus.ONLINE if res.success else ProviderStatus.OFFLINE
 

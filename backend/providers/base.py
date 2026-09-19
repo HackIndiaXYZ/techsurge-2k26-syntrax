@@ -56,6 +56,6 @@ class WeatherProvider(ABC):
         pass
 
     @abstractmethod
-    async def health_check(self) -> bool:
+    async def health_check(self) -> ProviderStatus:
         pass
 

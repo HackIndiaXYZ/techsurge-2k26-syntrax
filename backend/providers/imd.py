@@ -45,6 +45,6 @@ class IMDProvider(WeatherProvider):
             provider_name=self.name
         )
 
-    async def health_check(self) -> bool:
-        return False
+    async def health_check(self) -> ProviderStatus:
+        return ProviderStatus.UNAVAILABLE
 

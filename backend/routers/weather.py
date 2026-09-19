@@ -15,12 +15,12 @@ async def get_weather_sources():
     results = []
     for p in providers:
         start_time = time.monotonic()
-        is_healthy = await p.health_check()
+        provider_status = await p.health_check()
         latency_ms = int((time.monotonic() - start_time) * 1000)
         
         results.append({
             "name": p.name,
-            "status": "ONLINE" if is_healthy else "OFFLINE",
+            "status": provider_status.value,
             "latency_ms": latency_ms
         })
     return results
