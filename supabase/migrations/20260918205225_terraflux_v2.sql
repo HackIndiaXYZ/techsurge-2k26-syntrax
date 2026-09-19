@@ -33,8 +33,20 @@ ALTER TABLE consensus_results ADD CONSTRAINT ck_consensus_value_when_achieved CH
 );
 
 -- 4. wallets
-ALTER TABLE wallets DROP CONSTRAINT fk_wallet_policyholder;
+ALTER TABLE wallets DROP CONSTRAINT IF EXISTS fk_wallet_policyholder;
 ALTER TABLE wallets RENAME COLUMN policyholder_id TO policy_id;
+
+-- Remap any wallet storing a policyholder_id to the corresponding policy's id
+UPDATE wallets w
+SET policy_id = p.id
+FROM policies p
+WHERE w.policy_id = p.policyholder_id;
+
+UPDATE wallets
+SET policy_id = 'e5000000-0000-0000-0000-000000000001'::uuid
+WHERE id = 'f6000000-0000-0000-0000-000000000001'::uuid
+  AND policy_id = 'a1000000-0000-0000-0000-000000000001'::uuid;
+
 ALTER TABLE wallets ADD CONSTRAINT fk_wallet_policy FOREIGN KEY (policy_id) REFERENCES policies(id) ON DELETE RESTRICT;
 ALTER TABLE wallets ALTER COLUMN status TYPE text USING status::text;
 ALTER TABLE wallets ALTER COLUMN status DROP DEFAULT;
