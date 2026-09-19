@@ -16,6 +16,7 @@ ALTER TABLE trigger_rules ADD COLUMN consensus_tolerance double precision;
 
 -- 3. consensus_results
 ALTER TABLE consensus_results RENAME COLUMN state TO status;
+ALTER TABLE consensus_results DROP CONSTRAINT IF EXISTS ck_consensus_value_when_achieved;
 ALTER TABLE consensus_results ALTER COLUMN status TYPE text USING status::text;
 ALTER TABLE consensus_results ALTER COLUMN status DROP DEFAULT;
 ALTER TABLE consensus_results RENAME COLUMN value TO consensus_value_mm;
@@ -27,6 +28,9 @@ ALTER TABLE consensus_results ADD COLUMN source_count_outliers integer DEFAULT 0
 ALTER TABLE consensus_results ADD COLUMN accepted_source_ids jsonb;
 ALTER TABLE consensus_results ADD COLUMN outlier_source_ids jsonb;
 ALTER TABLE consensus_results ADD COLUMN reason text;
+ALTER TABLE consensus_results ADD CONSTRAINT ck_consensus_value_when_achieved CHECK (
+    (status != 'ACHIEVED') OR (consensus_value_mm IS NOT NULL)
+);
 
 -- 4. wallets
 ALTER TABLE wallets DROP CONSTRAINT fk_wallet_policyholder;
