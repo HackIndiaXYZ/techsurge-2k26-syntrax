@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.wallet import Wallet, WalletTransaction
 from models.audit import AuditEventType
 from services.audit import write_audit_event
-from services.ids import new_ulid
+from services.ids import new_uuid
 
 
 async def credit_wallet(
@@ -64,9 +64,10 @@ async def credit_wallet(
 
     # ── Insert ledger transaction ─────────────────────────────────────────────
     tx = WalletTransaction(
-        id=new_ulid(),
+        id=new_uuid(),
         wallet_id=wallet.id,
         payout_id=payout_id,
+        direction="CREDIT",
         amount_paise=amount_paise,
         balance_before_paise=balance_before,
         balance_after_paise=balance_after,
@@ -79,7 +80,7 @@ async def credit_wallet(
         db=db,
         event_type=AuditEventType.WALLET_CREDITED,
         entity_type="WALLET",
-        entity_id=wallet.id,
+        entity_id=str(wallet.id),
         policy_id=policy_id,
         correlation_id=correlation_id,
         status="SUCCESS",
@@ -88,8 +89,8 @@ async def credit_wallet(
             f"Balance: {balance_before} → {balance_after} paise."
         ),
         metadata={
-            "wallet_id": wallet.id,
-            "payout_id": payout_id,
+            "wallet_id": str(wallet.id),
+            "payout_id": str(payout_id),
             "amount_paise": amount_paise,
             "balance_before_paise": balance_before,
             "balance_after_paise": balance_after,

@@ -1,14 +1,14 @@
 """
 models/wallet.py — Wallet and WalletTransaction entities.
 
-SYNTHETIC WALLET — no real money, no real bank, no UPI.
-
-Wallet.balance_paise is the authoritative current balance.
-Every change is recorded as a WalletTransaction row (append-only ledger).
-
-MONETARY RULE: All amounts are integer paise. NEVER float.
+Wallet DB columns: id, policy_id, currency, balance_paise, status, created_at, updated_at
+WalletTransaction DB columns: id, wallet_id, payout_id, direction, amount_paise,
+                               balance_before_paise, balance_after_paise, created_at
 """
-from sqlalchemy import BigInteger, ForeignKey, String, UniqueConstraint
+import uuid
+
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Text
+from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
@@ -17,19 +17,18 @@ from models.base import Base, TimestampMixin
 class Wallet(Base, TimestampMixin):
     """
     Synthetic wallet holding an integer paise balance.
-    One wallet per policy for the PS-F03 demo.
     balance_paise is BigInteger — never float.
     """
     __tablename__ = "wallets"
 
-    id: Mapped[str] = mapped_column(String(64), primary_key=True)   # human-readable ID
-    policy_id: Mapped[str] = mapped_column(
-        String(64), ForeignKey("policies.id", ondelete="RESTRICT"), nullable=False, unique=True
+    id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    policy_id: Mapped[uuid.UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("policies.id", ondelete="RESTRICT"), nullable=False
     )
-    currency: Mapped[str] = mapped_column(String(3), default="INR", nullable=False)
-
-    # Current balance — BigInteger, integer paise only
+    currency: Mapped[str] = mapped_column(Text, default="INR", nullable=False)
     balance_paise: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
+    status: Mapped[str | None] = mapped_column(Text, nullable=True)
+    updated_at: Mapped[None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     policy: Mapped["Policy"] = relationship("Policy", back_populates="wallets")
@@ -44,21 +43,19 @@ class Wallet(Base, TimestampMixin):
 class WalletTransaction(Base, TimestampMixin):
     """
     An immutable ledger entry recording a wallet balance change.
-
-    balance_before_paise + amount_paise == balance_after_paise (always)
-    Linked 1:1 to a Payout via payout_id (unique constraint prevents double-credit).
     """
     __tablename__ = "wallet_transactions"
 
-    id: Mapped[str] = mapped_column(String(26), primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    wallet_id: Mapped[str] = mapped_column(
-        String(64), ForeignKey("wallets.id", ondelete="RESTRICT"), nullable=False, index=True
+    wallet_id: Mapped[uuid.UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("wallets.id", ondelete="RESTRICT"), nullable=False
     )
-    # One WalletTransaction per Payout — prevents double-credit at DB level
-    payout_id: Mapped[str] = mapped_column(
-        String(26), ForeignKey("payouts.id", ondelete="RESTRICT"), nullable=False, unique=True
+    payout_id: Mapped[uuid.UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("payouts.id", ondelete="RESTRICT"), nullable=False
     )
+
+    direction: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # All amounts are BigInteger — NEVER float
     amount_paise: Mapped[int] = mapped_column(BigInteger, nullable=False)
@@ -75,4 +72,3 @@ class WalletTransaction(Base, TimestampMixin):
             f"amount={self.amount_paise}p "
             f"before={self.balance_before_paise}p after={self.balance_after_paise}p>"
         )
-

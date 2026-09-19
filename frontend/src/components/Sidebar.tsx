@@ -8,6 +8,7 @@ const navItems = [
   { href: '/dashboard', label: 'Overview', icon: Home },
   { href: '/policies', label: 'Policies', icon: FileText },
   { href: '/weather', label: 'Live Monitor', icon: Radio },
+  { href: '/providers', label: 'Providers', icon: Radio }, // using Radio or Server if imported
   { href: '/wallet', label: 'Wallet', icon: Wallet },
   { href: '/events', label: 'Evidence', icon: Shield },
   { href: '/settings', label: 'Settings', icon: Settings },

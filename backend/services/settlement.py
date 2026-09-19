@@ -36,7 +36,7 @@ from models.policy import Policy
 from models.audit import AuditEventType
 from services.audit import write_audit_event
 from services.wallet import credit_wallet
-from services.ids import new_ulid
+from services.ids import new_uuid
 from services.providers import PayoutProvider, ProviderStatus, get_default_provider
 
 
@@ -67,7 +67,9 @@ async def settle_payout(
         provider = get_default_provider()
 
     # ── Guard: only settle for TRIGGERED evaluations ─────────────────────────
-    if trigger_evaluation.trigger_status != TriggerStatus.TRIGGERED:
+    ts = trigger_evaluation.trigger_status
+    is_triggered = (ts == TriggerStatus.TRIGGERED or ts == TriggerStatus.TRIGGERED.value)
+    if not is_triggered:
         return None, "SKIPPED"
 
     idempotency_key = f"{policy.id}::{trigger_evaluation.id}"
@@ -95,12 +97,12 @@ async def settle_payout(
         return existing, "ALREADY_SETTLED"
 
     # ── Create payout record (PENDING) ───────────────────────────────────────
-    payout_id = new_ulid()
+    payout_id = new_uuid()
     payout = Payout(
         id=payout_id,
         policy_id=policy.id,
         trigger_evaluation_id=trigger_evaluation.id,
-        status=PayoutStatus.PENDING,
+        status=PayoutStatus.PENDING.value,
         amount_paise=policy.payout_amount_paise,   # integer paise — NEVER float
         idempotency_key=idempotency_key,
     )
@@ -162,7 +164,7 @@ async def settle_payout(
             correlation_id=correlation_id,
             db=db,
         )
-        payout.status = PayoutStatus.SUCCESS
+        payout.status = PayoutStatus.SUCCESS.value
         payout.provider_reference = provider_result.provider_reference
         await db.flush()
 
@@ -188,7 +190,7 @@ async def settle_payout(
         # Provider FAILED or UNKNOWN — do NOT credit wallet
         # UNKNOWN is treated as FAILED for hackathon scope.
         # Defensible guarantee: no wallet credit occurs if provider did not confirm.
-        payout.status = PayoutStatus.FAILED
+        payout.status = PayoutStatus.FAILED.value
         payout.failure_reason = (
             f"{provider_result.status.value}: "
             f"[{provider_result.error_code}] {provider_result.error_message}"

@@ -20,7 +20,7 @@ from models.trigger import TriggerEvaluation, TriggerStatus
 from models.policy import Policy
 from models.audit import AuditEventType
 from services.audit import write_audit_event
-from services.ids import new_ulid
+from services.ids import new_uuid
 
 
 RAINFALL_THRESHOLD_MM: float = 100.0
@@ -54,7 +54,14 @@ async def evaluate_trigger(
     threshold = trigger_rule.threshold_value if trigger_rule else RAINFALL_THRESHOLD_MM
 
     # ── Decision ─────────────────────────────────────────────────────────────
-    if consensus_result.status == ConsensusStatus.NO_CONSENSUS:
+    consensus_status = consensus_result.status
+    # Handle both enum and string status values
+    if isinstance(consensus_status, ConsensusStatus):
+        is_no_consensus = consensus_status == ConsensusStatus.NO_CONSENSUS
+    else:
+        is_no_consensus = str(consensus_status) == "NO_CONSENSUS"
+
+    if is_no_consensus:
         trigger_status = TriggerStatus.TRIGGER_BLOCKED_NO_CONSENSUS
         reason = "No authoritative consensus established. Trigger blocked."
 
@@ -64,29 +71,29 @@ async def evaluate_trigger(
 
     elif (
         consensus_result.consensus_value_mm is not None
-        and consensus_result.consensus_value_mm >= threshold
+        and float(consensus_result.consensus_value_mm) >= float(threshold)
     ):
         trigger_status = TriggerStatus.TRIGGERED
         reason = (
-            f"Consensus rainfall {consensus_result.consensus_value_mm:.1f} mm "
-            f">= threshold {threshold:.1f} mm. Trigger fires."
+            f"Consensus rainfall {float(consensus_result.consensus_value_mm):.1f} mm "
+            f">= threshold {float(threshold):.1f} mm. Trigger fires."
         )
 
     else:
         trigger_status = TriggerStatus.NOT_TRIGGERED
         reason = (
             f"Consensus rainfall {consensus_result.consensus_value_mm} mm "
-            f"< threshold {threshold:.1f} mm. Trigger does not fire."
+            f"< threshold {float(threshold):.1f} mm. Trigger does not fire."
         )
 
     # ── Persist ──────────────────────────────────────────────────────────────
     record = TriggerEvaluation(
-        id=new_ulid(),
+        id=new_uuid(),
         policy_id=policy.id,
         consensus_result_id=consensus_result.id,
-        trigger_status=trigger_status,
-        consensus_value_mm=consensus_result.consensus_value_mm,
-        threshold_mm=threshold,
+        trigger_status=trigger_status.value,
+        consensus_value_mm=float(consensus_result.consensus_value_mm) if consensus_result.consensus_value_mm is not None else None,
+        threshold_mm=float(threshold),
         evaluated_at=evaluated_at,
         reason=reason,
     )
@@ -108,17 +115,16 @@ async def evaluate_trigger(
         db=db,
         event_type=audit_type,
         entity_type="TRIGGER",
-        entity_id=record.id,
+        entity_id=str(record.id),
         policy_id=policy.id,
         correlation_id=correlation_id,
         status=audit_status,
         message=reason,
         metadata={
             "trigger_status": trigger_status.value,
-            "consensus_value_mm": consensus_result.consensus_value_mm,
-            "threshold_mm": threshold,
+            "consensus_value_mm": float(consensus_result.consensus_value_mm) if consensus_result.consensus_value_mm is not None else None,
+            "threshold_mm": float(threshold),
         },
     )
 
     return record
-

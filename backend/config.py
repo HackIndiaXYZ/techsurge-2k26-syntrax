@@ -29,13 +29,16 @@ class Settings(BaseSettings):
     environment: str = "development"
 
     # ── CORS ────────────────────────────────────────────────────────────────
-    allowed_origins: List[str] = ["http://localhost:3000"]
+    allowed_origins: str | List[str] = ["http://localhost:3000"]
 
     @field_validator("allowed_origins", mode="before")
     @classmethod
     def parse_origins(cls, v: str | List[str]) -> List[str]:
         if isinstance(v, str):
-            return [o.strip() for o in v.split(",") if o.strip()]
+            v = v.strip("[]'\"")
+            return [o.strip(" '\"") for o in v.split(",") if o.strip(" '\"")]
+        if isinstance(v, list):
+            return [str(o).strip(" '\"") for o in v]
         return v
 
     # ── Internal / Dev auth ─────────────────────────────────────────────────
@@ -54,6 +57,25 @@ class Settings(BaseSettings):
     CONSENSUS_QUORUM: int = 2
     DEMO_PAYOUT_PAISE: int = 1_000_000   # ₹10,000 in paise (integer)
 
+    # ── Weather Providers ───────────────────────────────────────────────────
+    openmeteo_base_url: str = "https://api.open-meteo.com"
+    accuweather_api_key: str = ""
+    accuweather_base_url: str = "https://dataservice.accuweather.com"
+    imd_api_key: str = ""
+    imd_api_base_url: str = "https://api.imd.gov.in"
+    
+    # ── Payment ─────────────────────────────────────────────────────────────
+    razorpay_key_id: str = ""
+    razorpay_key_secret: str = ""
+    razorpay_mode: str = "test"
+    
+    # ── Monitoring ──────────────────────────────────────────────────────────
+    default_latitude: float = 17.385
+    default_longitude: float = 78.4867
+    polling_interval_seconds: int = 60
+    provider_timeout_seconds: int = 10
+    provider_max_retries: int = 3
+    stale_threshold_seconds: int = 7200  # 2 hours
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

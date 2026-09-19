@@ -1,12 +1,15 @@
 """
 models/telemetry.py — TelemetryEvent entity.
 
-Each TelemetryEvent is one rainfall observation from one weather source.
-event_id uniqueness is enforced at the DB level for deduplication.
+DB columns: id, source_id, region_id, source_event_id, metric, value, unit,
+            observed_at, window_start, window_end, received_at,
+            validation_state, metadata, created_at
 """
+import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, String, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Numeric, Text
+from sqlalchemy.dialects.postgresql import UUID as PgUUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
@@ -15,49 +18,51 @@ from models.base import Base, TimestampMixin
 class TelemetryEvent(Base, TimestampMixin):
     """
     A single telemetry observation from a weather source.
-
-    DEDUPLICATION:
-    - event_id must be unique across the table.
-    - A replayed event_id is rejected (returns DUPLICATE, not inserted).
-
-    IMPORTANT:
-    - value_mm is stored as Float (physical measurement — not monetary).
-    - Monetary values are NEVER stored as Float in this system.
     """
     __tablename__ = "telemetry_events"
 
-    # Internal DB primary key (ULID)
-    id: Mapped[str] = mapped_column(String(26), primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    # Client-provided event identity — UNIQUE constraint for deduplication
-    event_id: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
-
-    source_id: Mapped[str] = mapped_column(
-        String(64), ForeignKey("weather_sources.id", ondelete="RESTRICT"), nullable=False, index=True
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("weather_sources.id", ondelete="RESTRICT"), nullable=False
     )
-    region_id: Mapped[str] = mapped_column(
-        String(64), ForeignKey("micro_regions.id", ondelete="RESTRICT"), nullable=False, index=True
+    region_id: Mapped[uuid.UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("micro_regions.id", ondelete="RESTRICT"), nullable=False
     )
 
-    # Measurement
-    metric: Mapped[str] = mapped_column(String(64), nullable=False)   # "rainfall"
-    value_mm: Mapped[float] = mapped_column(Float, nullable=False)     # physical, not monetary
-    unit: Mapped[str] = mapped_column(String(16), nullable=False)      # "mm"
+    # DB uses source_event_id, not event_id
+    source_event_id: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    # Timestamps
+    metric: Mapped[str] = mapped_column(Text, nullable=False)
+    value: Mapped[float | None] = mapped_column(Numeric, nullable=True)  # DB uses numeric, not float
+    unit: Mapped[str] = mapped_column(Text, nullable=False)
+
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    window_start: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    window_end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    received_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    # Validation status
-    is_valid: Mapped[bool] = mapped_column(default=True, nullable=False)
-    rejection_reason: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    validation_state: Mapped[str | None] = mapped_column(Text, nullable=True)
+    metadata_: Mapped[dict | None] = mapped_column("metadata", JSONB, nullable=True)
 
     # Relationships
     source: Mapped["WeatherSource"] = relationship("WeatherSource", back_populates="telemetry_events")
 
+    # Compatibility properties
+    @property
+    def event_id(self) -> str | None:
+        return self.source_event_id
+
+    @property
+    def value_mm(self) -> float | None:
+        return float(self.value) if self.value is not None else None
+
+    @property
+    def is_valid(self) -> bool:
+        return self.validation_state in (None, "ACCEPTED", "accepted")
+
     def __repr__(self) -> str:
         return (
-            f"<TelemetryEvent event_id={self.event_id!r} "
-            f"source={self.source_id!r} value={self.value_mm}mm>"
+            f"<TelemetryEvent id={self.id!r} "
+            f"source={self.source_id!r} value={self.value}>"
         )
-

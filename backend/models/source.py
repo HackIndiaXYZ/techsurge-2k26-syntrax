@@ -1,10 +1,12 @@
 """
 models/source.py — WeatherSource entity.
 
-A WeatherSource represents one simulated weather telemetry provider.
-For PS-F03 demo: source-a, source-b, source-c.
+DB columns: id, code, kind, enabled, created_at, updated_at
 """
-from sqlalchemy import Boolean, ForeignKey, String, Text
+import uuid
+
+from sqlalchemy import Boolean, DateTime, Text
+from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
@@ -12,27 +14,30 @@ from models.base import Base, TimestampMixin
 
 class WeatherSource(Base, TimestampMixin):
     """
-    A simulated weather data source.
-    Demo seeds: source-a, source-b, source-c.
+    A weather data source.
+    DB uses: code (text), kind (text), enabled (bool).
     """
     __tablename__ = "weather_sources"
 
-    id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    region_id: Mapped[str] = mapped_column(
-        String(64), ForeignKey("micro_regions.id", ondelete="RESTRICT"), nullable=False
-    )
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    code: Mapped[str] = mapped_column(Text, nullable=False)
+    kind: Mapped[str | None] = mapped_column(Text, nullable=True)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    updated_at: Mapped[None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    region: Mapped["MicroRegion"] = relationship(
-        "MicroRegion", back_populates="sources"
-    )
     telemetry_events: Mapped[list["TelemetryEvent"]] = relationship(
         "TelemetryEvent", back_populates="source", lazy="select"
     )
 
-    def __repr__(self) -> str:
-        return f"<WeatherSource id={self.id!r} region={self.region_id!r}>"
+    # Compatibility properties
+    @property
+    def name(self) -> str:
+        return self.code
 
+    @property
+    def is_active(self) -> bool:
+        return self.enabled
+
+    def __repr__(self) -> str:
+        return f"<WeatherSource id={self.id!r} code={self.code!r}>"

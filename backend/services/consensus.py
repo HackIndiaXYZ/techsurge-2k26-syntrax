@@ -23,7 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.consensus import ConsensusResult, ConsensusStatus
 from models.audit import AuditEventType
 from services.audit import write_audit_event
-from services.ids import new_ulid
+from services.ids import new_uuid
 
 
 TOLERANCE_MM: float = 5.0   # inclusive: abs(value - median) <= TOLERANCE
@@ -142,8 +142,8 @@ def evaluate_consensus(observations: list[SourceObservation]) -> ConsensusOutput
 
 async def run_consensus(
     observations: list[SourceObservation],
-    policy_id: str,
-    region_id: str,
+    policy_id,
+    region_id,
     correlation_id: str,
     db: AsyncSession,
 ) -> ConsensusResult:
@@ -153,12 +153,23 @@ async def run_consensus(
     evaluated_at = datetime.now(timezone.utc)
     output = evaluate_consensus(observations)
 
+    # Convert IDs to UUID if they're strings
+    import uuid as uuid_mod
+    if isinstance(policy_id, str):
+        policy_id = uuid_mod.UUID(policy_id)
+    if isinstance(region_id, str):
+        region_id = uuid_mod.UUID(region_id)
+
     # Persist ConsensusResult
     record = ConsensusResult(
-        id=new_ulid(),
+        id=new_uuid(),
         policy_id=policy_id,
         region_id=region_id,
-        status=output.status,
+        metric="RAINFALL_MM",
+        window_start=evaluated_at,
+        window_end=evaluated_at,
+        quorum=2,
+        status=output.status.value,
         median_all_sources_mm=output.median_all_sources_mm,
         consensus_value_mm=output.consensus_value_mm,
         source_count_total=output.source_count_total,
@@ -166,7 +177,6 @@ async def run_consensus(
         source_count_outliers=output.source_count_outliers,
         accepted_source_ids=output.accepted_sources,
         outlier_source_ids=output.outlier_sources,
-        evaluated_at=evaluated_at,
         reason=output.reason,
     )
     db.add(record)
@@ -178,7 +188,7 @@ async def run_consensus(
             db=db,
             event_type=AuditEventType.CONSENSUS_REACHED,
             entity_type="CONSENSUS",
-            entity_id=record.id,
+            entity_id=str(record.id),
             policy_id=policy_id,
             correlation_id=correlation_id,
             status="REACHED",
@@ -195,7 +205,7 @@ async def run_consensus(
             db=db,
             event_type=AuditEventType.CONSENSUS_FAILED,
             entity_type="CONSENSUS",
-            entity_id=record.id,
+            entity_id=str(record.id),
             policy_id=policy_id,
             correlation_id=correlation_id,
             status="NO_CONSENSUS",
@@ -208,4 +218,3 @@ async def run_consensus(
         )
 
     return record
-

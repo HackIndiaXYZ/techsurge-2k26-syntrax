@@ -71,7 +71,6 @@ async def run_simulation(
     policy = await db.scalar(
         select(Policy)
         .where(Policy.id == request.policy_id)
-        .options(selectinload(Policy.trigger_rule))
     )
     if policy is None:
         raise ValueError(f"Policy {request.policy_id!r} not found.")
@@ -145,9 +144,9 @@ async def run_simulation(
     )
 
     consensus_schema = ConsensusSchema(
-        status=consensus_record.status.value,
-        median_all_sources=consensus_record.median_all_sources_mm,
-        consensus_value_mm=consensus_record.consensus_value_mm,
+        status=str(consensus_record.status),
+        median_all_sources=float(consensus_record.median_all_sources_mm) if consensus_record.median_all_sources_mm is not None else None,
+        consensus_value_mm=float(consensus_record.consensus_value_mm) if consensus_record.consensus_value_mm is not None else None,
         accepted_sources=consensus_record.accepted_source_ids or [],
         outlier_sources=consensus_record.outlier_source_ids or [],
         reason=consensus_record.reason,
@@ -163,9 +162,9 @@ async def run_simulation(
     )
 
     trigger_schema = TriggerResult(
-        status=trigger_record.trigger_status.value,
-        threshold_mm=trigger_record.threshold_mm,
-        consensus_value_mm=trigger_record.consensus_value_mm,
+        status=str(trigger_record.trigger_status),
+        threshold_mm=float(trigger_record.threshold_mm) if trigger_record.threshold_mm is not None else None,
+        consensus_value_mm=float(trigger_record.consensus_value_mm) if trigger_record.consensus_value_mm is not None else None,
         reason=trigger_record.reason or "",
     )
 
@@ -178,7 +177,7 @@ async def run_simulation(
     payout_completed_at: datetime | None = None
 
     from models.trigger import TriggerStatus
-    if trigger_record.trigger_status == TriggerStatus.TRIGGERED:
+    if str(trigger_record.trigger_status) == "TRIGGERED":
         payout, idempotency_status = await settle_payout(
             trigger_evaluation=trigger_record,
             policy=policy,
@@ -235,7 +234,7 @@ async def run_simulation(
                     balance_after_paise=after,
                     credited=credited,
                 )
-    elif trigger_record.trigger_status.value == "TRIGGER_BLOCKED_NO_CONSENSUS":
+    elif str(trigger_record.trigger_status) == "TRIGGER_BLOCKED_NO_CONSENSUS":
         settlement_schema = SettlementResult(
             status="SKIPPED",
             reason="No consensus — trigger blocked. No payout.",
