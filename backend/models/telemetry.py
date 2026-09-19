@@ -8,8 +8,8 @@ DB columns: id, source_id, region_id, source_event_id, metric, value, unit,
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Numeric, Text
-from sqlalchemy.dialects.postgresql import UUID as PgUUID, JSONB
+from sqlalchemy import DateTime, ForeignKey, Numeric, Text, JSON, Uuid as PgUUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
@@ -43,7 +43,7 @@ class TelemetryEvent(Base, TimestampMixin):
     received_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     validation_state: Mapped[str | None] = mapped_column(Text, nullable=True)
-    metadata_: Mapped[dict | None] = mapped_column("metadata", JSONB, nullable=True)
+    metadata_: Mapped[dict | None] = mapped_column("metadata", JSON().with_variant(JSONB, "postgresql"), nullable=True)
 
     # Relationships
     source: Mapped["WeatherSource"] = relationship("WeatherSource", back_populates="telemetry_events")

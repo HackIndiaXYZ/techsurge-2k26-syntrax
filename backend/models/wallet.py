@@ -8,7 +8,7 @@ WalletTransaction DB columns: id, wallet_id, payout_id, direction, amount_paise,
 import uuid
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID as PgUUID
+from sqlalchemy import Uuid as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin

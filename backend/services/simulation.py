@@ -7,6 +7,8 @@ This service runs the complete PS-F03 pipeline in one transaction:
 The simulation endpoint does NOT return hardcoded responses.
 It exercises the real pipeline with whatever observations are provided.
 """
+import logging
+import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import select
@@ -70,7 +72,8 @@ async def run_simulation(
     # ── 1. Fetch policy ───────────────────────────────────────────────────────
     policy = await db.scalar(
         select(Policy)
-        .where(Policy.id == request.policy_id)
+        .options(selectinload(Policy.trigger_rule))
+        .where(Policy.id == uuid.UUID(request.policy_id))
     )
     if policy is None:
         raise ValueError(f"Policy {request.policy_id!r} not found.")
@@ -199,7 +202,7 @@ async def run_simulation(
 
             settlement_schema = SettlementResult(
                 status=settlement_status,
-                payout_id=payout.id,
+                payout_id=str(payout.id),
                 idempotency_status=idempotency_status,
                 payout_amount_paise=payout.amount_paise,
                 payout_amount_inr_display=_paise_to_inr_display(payout.amount_paise),
@@ -213,7 +216,7 @@ async def run_simulation(
             # Fetch updated wallet state with eager load for transactions
             wallet_rec = await db.scalar(
                 select(Wallet)
-                .where(Wallet.policy_id == request.policy_id)
+                .where(Wallet.policy_id == uuid.UUID(request.policy_id))
                 .options(selectinload(Wallet.transactions))
             )
             if wallet_rec:
@@ -229,7 +232,7 @@ async def run_simulation(
                     credited = False
 
                 wallet_schema = WalletResult(
-                    wallet_id=wallet_rec.id,
+                    wallet_id=str(wallet_rec.id),
                     balance_before_paise=before if credited else wallet_rec.balance_paise,
                     balance_after_paise=after,
                     credited=credited,

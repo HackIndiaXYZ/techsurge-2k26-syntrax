@@ -9,8 +9,8 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Text
-from sqlalchemy.dialects.postgresql import UUID as PgUUID, JSONB
+from sqlalchemy import DateTime, Text, JSON, Uuid as PgUUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from models.base import Base, TimestampMixin
@@ -51,7 +51,7 @@ class AuditEvent(Base, TimestampMixin):
     event_type: Mapped[str] = mapped_column(Text, nullable=False)
     actor: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    metadata_: Mapped[dict | None] = mapped_column("metadata", JSONB, nullable=True)
+    metadata_: Mapped[dict | None] = mapped_column("metadata", JSON().with_variant(JSONB, "postgresql"), nullable=True)
 
     occurred_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

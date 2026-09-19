@@ -22,15 +22,21 @@ from models.policy import Policy, PolicyStatus, TriggerRule
 from models.wallet import Wallet
 
 
-REGION_ID = "region-kaveri-delta"
-POLICY_ID = "policy-kaveri-2026"
-WALLET_ID = "wallet-kaveri-2026"
+import uuid
 
-SOURCE_IDS = ["source-a", "source-b", "source-c"]
+REGION_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+POLICY_ID = uuid.UUID("00000000-0000-0000-0000-000000000002")
+WALLET_ID = uuid.UUID("00000000-0000-0000-0000-000000000003")
+
+SOURCE_IDS = [
+    uuid.UUID("00000000-0000-0000-0000-000000000010"),
+    uuid.UUID("00000000-0000-0000-0000-000000000011"),
+    uuid.UUID("00000000-0000-0000-0000-000000000012"),
+]
 SOURCE_NAMES = {
-    "source-a": "Kaveri Delta Station Alpha",
-    "source-b": "Kaveri Delta Station Beta",
-    "source-c": "Kaveri Delta Station Gamma",
+    uuid.UUID("00000000-0000-0000-0000-000000000010"): "Kaveri Delta Station Alpha",
+    uuid.UUID("00000000-0000-0000-0000-000000000011"): "Kaveri Delta Station Beta",
+    uuid.UUID("00000000-0000-0000-0000-000000000012"): "Kaveri Delta Station Gamma",
 }
 
 PAYOUT_PAISE = 1_000_000   # ₹10,000 — integer only
@@ -51,8 +57,8 @@ async def seed(db: AsyncSession) -> None:
     if not existing_region:
         db.add(MicroRegion(
             id=REGION_ID,
+            code="KAVERI-001",
             name="Kaveri Delta",
-            description="Primary demo region — Kaveri River Delta flood monitoring zone.",
         ))
         await db.flush()
         logger.info(f"Seeded MicroRegion: {REGION_ID}")
@@ -63,9 +69,8 @@ async def seed(db: AsyncSession) -> None:
         if not existing_src:
             db.add(WeatherSource(
                 id=sid,
-                region_id=REGION_ID,
-                name=SOURCE_NAMES[sid],
-                is_active=True,
+                code=SOURCE_NAMES[sid],
+                enabled=True,
             ))
     await db.flush()
     logger.info(f"Seeded WeatherSources: {SOURCE_IDS}")
@@ -89,7 +94,7 @@ async def seed(db: AsyncSession) -> None:
         # ── TriggerRule ──────────────────────────────────────────────────────
         from services.ids import new_ulid
         db.add(TriggerRule(
-            id=f"rule-{POLICY_ID}",
+            id=uuid.UUID("00000000-0000-0000-0000-000000000004"),
             policy_id=POLICY_ID,
             metric="rainfall",
             threshold_value=100.0,

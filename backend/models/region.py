@@ -6,7 +6,7 @@ DB columns: id, code, name, timezone, active, created_at, updated_at
 import uuid
 
 from sqlalchemy import Boolean, DateTime, Text
-from sqlalchemy.dialects.postgresql import UUID as PgUUID
+from sqlalchemy import Uuid as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin

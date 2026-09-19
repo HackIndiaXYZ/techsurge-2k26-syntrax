@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, Float, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID as PgUUID
+from sqlalchemy import Uuid as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base

@@ -12,8 +12,8 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, Numeric, Text
-from sqlalchemy.dialects.postgresql import UUID as PgUUID, JSONB
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, Numeric, Text, JSON, Uuid as PgUUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
@@ -49,8 +49,8 @@ class ConsensusResult(Base, TimestampMixin):
     source_count_total: Mapped[int | None] = mapped_column(Integer, default=0, nullable=True)
     source_count_accepted: Mapped[int | None] = mapped_column(Integer, default=0, nullable=True)
     source_count_outliers: Mapped[int | None] = mapped_column(Integer, default=0, nullable=True)
-    accepted_source_ids: Mapped[list | None] = mapped_column(JSONB, nullable=True)
-    outlier_source_ids: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    accepted_source_ids: Mapped[list | None] = mapped_column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
+    outlier_source_ids: Mapped[list | None] = mapped_column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
     reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships

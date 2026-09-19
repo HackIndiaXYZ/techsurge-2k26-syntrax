@@ -175,7 +175,7 @@ class MockPayoutProvider:
             )
 
         # Success path — deterministic synthetic reference
-        provider_reference = f"MOCK-{payout_id[:8].upper()}-{amount_paise}P"
+        provider_reference = f"MOCK-{str(payout_id)[:8].upper()}-{amount_paise}P"
         return ProviderResult(
             status=ProviderStatus.SUCCESS,
             provider_reference=provider_reference,

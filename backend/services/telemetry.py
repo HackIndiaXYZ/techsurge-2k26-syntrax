@@ -108,8 +108,18 @@ async def ingest_telemetry(
             event_id=request.event_id,
             correlation_id=correlation_id,
             received_at=received_at,
-            message="Event already ingested (concurrent). Ignored.",
+            message="Source event already processed concurrently.",
         )
+
+    await write_audit_event(
+        db=db,
+        event_type=AuditEventType.TELEMETRY_RECEIVED,
+        entity_type="TELEMETRY",
+        entity_id=str(event.id),
+        status="ACCEPTED",
+        correlation_id=correlation_id,
+        metadata={"source_id": request.source_id, "value": request.value}
+    )
 
     return TelemetryIngestResponse(
         status="ACCEPTED",

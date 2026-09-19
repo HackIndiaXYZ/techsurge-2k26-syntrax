@@ -13,7 +13,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID as PgUUID
+from sqlalchemy import Uuid as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from models.base import Base, TimestampMixin
