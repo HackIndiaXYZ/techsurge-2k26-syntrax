@@ -76,9 +76,13 @@ app = FastAPI(
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
+origins = list(settings.allowed_origins)
+if "https://terrafluxapp.xyz" in origins and "https://www.terrafluxapp.xyz" not in origins:
+    origins.append("https://www.terrafluxapp.xyz")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
