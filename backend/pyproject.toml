@@ -16,6 +16,7 @@ dependencies = [
     "numpy>=2.4.6",
     "pytest>=9.1.1",
     "twilio>=9.11.1",
+    "pyjwt>=2.14.0",
 ]
 
 [project.optional-dependencies]

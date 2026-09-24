@@ -6,7 +6,7 @@ import { Leaf, Mail, Lock, Eye, EyeOff, Play, ShieldCheck, Cloud, Shield, Umbrel
 import { createClient } from '@/lib/supabase';
 import Link from 'next/link';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const supabase = createClient();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -28,7 +28,7 @@ export default function LoginPage() {
     }
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -40,7 +40,7 @@ export default function LoginPage() {
         router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+      setError(err.message || 'Failed to register');
     } finally {
       setLoading(false);
     }
@@ -158,10 +158,10 @@ export default function LoginPage() {
           padding: '60px',
           borderLeft: '1px solid var(--color-tf-border)',
         }}>
-          <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Welcome back</h2>
-          <p style={{ fontSize: '14px', color: 'var(--color-tf-text-muted)', marginBottom: '32px' }}>Sign in to your TerraFlux account</p>
+          <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Create an account</h2>
+          <p style={{ fontSize: '14px', color: 'var(--color-tf-text-muted)', marginBottom: '32px' }}>Join TerraFlux to protect your livelihood</p>
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleRegister}>
             {/* Email */}
             <div style={{ marginBottom: '16px' }}>
               <label style={{ fontSize: '12px', color: 'var(--color-tf-text-muted)', fontWeight: 500, display: 'block', marginBottom: '6px' }}>Email</label>
@@ -218,7 +218,7 @@ export default function LoginPage() {
             </div>
 
             <div style={{ textAlign: 'right', marginBottom: '24px' }}>
-              <a href="#" style={{ fontSize: '12px', color: 'var(--color-tf-green)', textDecoration: 'none' }}>Forgot password?</a>
+              <span style={{ fontSize: '12px', color: 'var(--color-tf-text-dim)' }}>Password must be at least 6 characters</span>
             </div>
 
             {/* Error message */}
@@ -254,19 +254,19 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                  Signing in...
+                  Signing up...
                   <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
                 </>
               ) : (
-                'Sign in →'
+                'Create Account →'
               )}
             </button>
           </form>
 
           <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <span style={{ fontSize: '13px', color: 'var(--color-tf-text-muted)' }}>Don&apos;t have an account? </span>
-            <Link href="/register" style={{ fontSize: '13px', color: 'var(--color-tf-green)', textDecoration: 'none', fontWeight: 500 }}>
-              Create one
+            <span style={{ fontSize: '13px', color: 'var(--color-tf-text-muted)' }}>Already have an account? </span>
+            <Link href="/login" style={{ fontSize: '13px', color: 'var(--color-tf-green)', textDecoration: 'none', fontWeight: 500 }}>
+              Sign in
             </Link>
           </div>
           {/* Trust badge */}

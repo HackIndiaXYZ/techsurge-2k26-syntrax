@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 from database import get_db
 from models.policy import Policy
 from schemas.policy import PolicyResponse
+from services.auth import get_current_user
 
 router = APIRouter(prefix="/policies", tags=["Policies"])
 
@@ -23,6 +24,7 @@ def _paise_to_inr_display(paise: int) -> str:
 async def get_policy(
     policy_id: str,
     db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ) -> PolicyResponse:
     try:
         pid = _uuid.UUID(policy_id)

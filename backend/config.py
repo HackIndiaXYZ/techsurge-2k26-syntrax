@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     # ── Internal / Dev auth ─────────────────────────────────────────────────
     # TBD: Replace with real auth before production.
     internal_api_key: str = "changeme-dev-only"
+    supabase_jwt_secret: str = ""
 
     # ── Demo seeding ────────────────────────────────────────────────────────
     seed_on_startup: bool = False

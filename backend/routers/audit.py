@@ -15,6 +15,7 @@ from database import get_db
 from models.audit import AuditEvent
 from models.policy import Policy
 from schemas.audit import AuditEventResponse, AuditListResponse
+from services.auth import get_current_user
 
 router = APIRouter(prefix="/policies", tags=["Audit"])
 
@@ -24,6 +25,7 @@ async def get_policy_audit(
     policy_id: str,
     limit: int = Query(default=50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ) -> AuditListResponse:
     try:
         pid = _uuid.UUID(policy_id)

@@ -1,7 +1,7 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { Search, Bell, Sun, Moon, Leaf } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Search, Bell, Sun, Moon, Leaf, LogOut } from 'lucide-react';
 import { useApp } from '@/lib/context';
 
 const pageTitles: Record<string, string> = {
@@ -16,9 +16,22 @@ const pageTitles: Record<string, string> = {
 export default function Header() {
   const pathname = usePathname();
   const { isDarkMode, setIsDarkMode } = useApp();
+  const router = useRouter();
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
   const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
+
+  const handleLogout = async () => {
+    try {
+      const { createClient } = await import('@/lib/supabase');
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push('/login');
+      router.refresh();
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
+  };
 
   return (
     <header style={{
@@ -132,6 +145,24 @@ export default function Header() {
         color: 'var(--color-tf-text-muted)',
       }}>
         <Bell size={15} />
+      </button>
+
+      {/* Logout */}
+      <button 
+        onClick={handleLogout}
+        style={{
+        width: '32px',
+        height: '32px',
+        borderRadius: '6px',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        border: '1px solid rgba(239, 68, 68, 0.3)',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#ef4444',
+      }}>
+        <LogOut size={15} />
       </button>
     </header>
   );

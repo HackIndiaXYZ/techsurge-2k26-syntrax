@@ -1,0 +1,101 @@
+{
+  "correlation_id": "98ead377-02fd-49b8-9132-7fc1b90691ba",
+  "scenario": "NORMAL",
+  "policy_id": "00000000-0000-0000-0000-000000000002",
+  "telemetry": {
+    "submitted": 3,
+    "accepted": 3,
+    "rejected": 0,
+    "duplicates": 0,
+    "observations": [
+      {
+        "source_id": "00000000-0000-0000-0000-000000000010",
+        "value": 110.0,
+        "status": "ACCEPTED",
+        "rejection_reason": null
+      },
+      {
+        "source_id": "00000000-0000-0000-0000-000000000011",
+        "value": 108.0,
+        "status": "ACCEPTED",
+        "rejection_reason": null
+      },
+      {
+        "source_id": "00000000-0000-0000-0000-000000000012",
+        "value": 111.0,
+        "status": "ACCEPTED",
+        "rejection_reason": null
+      }
+    ]
+  },
+  "consensus": {
+    "status": "REACHED",
+    "median_all_sources": 110.0,
+    "consensus_value_mm": 110.0,
+    "accepted_sources": [
+      "00000000-0000-0000-0000-000000000010",
+      "00000000-0000-0000-0000-000000000011",
+      "00000000-0000-0000-0000-000000000012"
+    ],
+    "outlier_sources": [],
+    "reason": "Consensus reached. 3/3 sources within tolerance. Consensus value: 110.0 mm."
+  },
+  "trigger": {
+    "status": "TRIGGERED",
+    "threshold_mm": 100.0,
+    "consensus_value_mm": 110.0,
+    "reason": "Consensus rainfall 110.0 mm >= threshold 100.0 mm. Trigger fires."
+  },
+  "settlement": {
+    "status": "SUCCESS",
+    "payout_id": "f9284378-11ef-4c92-b985-3880a5cc6e42",
+    "idempotency_status": "NEW",
+    "payout_amount_paise": 1000000,
+    "payout_amount_inr_display": "₹10,000",
+    "reason": null
+  },
+  "wallet": {
+    "wallet_id": "00000000-0000-0000-0000-000000000003",
+    "balance_before_paise": 0,
+    "balance_after_paise": 1000000,
+    "credited": true
+  },
+  "audit_id": null,
+  "latency": {
+    "observed_at": "2026-09-18T11:00:00Z",
+    "received_at": "2026-09-24T11:30:29.833876Z",
+    "trigger_evaluated_at": "2026-09-24T11:30:29.883704Z",
+    "payout_completed_at": "2026-09-24T11:30:29.898158Z",
+    "detection_latency_ms": 520229883,
+    "settlement_latency_ms": 14,
+    "end_to_end_latency_ms": 520229900
+  },
+  "ai_event": {
+    "correlation_id": "98ead377-02fd-49b8-9132-7fc1b90691ba",
+    "policy_id": "00000000-0000-0000-0000-000000000002",
+    "region_id": "00000000-0000-0000-0000-000000000001",
+    "scenario": "NORMAL",
+    "source_observations": [
+      {
+        "source_id": "00000000-0000-0000-0000-000000000010",
+        "value_mm": 110.0
+      },
+      {
+        "source_id": "00000000-0000-0000-0000-000000000011",
+        "value_mm": 108.0
+      },
+      {
+        "source_id": "00000000-0000-0000-0000-000000000012",
+        "value_mm": 111.0
+      }
+    ],
+    "consensus_status": "REACHED",
+    "consensus_value_mm": 110.0,
+    "outlier_sources": [],
+    "trigger_status": "TRIGGERED",
+    "trigger_reason": "Consensus rainfall 110.0 mm >= threshold 100.0 mm. Trigger fires.",
+    "payout_amount_paise": 1000000,
+    "settlement_status": "SUCCESS",
+    "idempotency_status": "NEW"
+  }
+}

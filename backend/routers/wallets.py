@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 from database import get_db
 from models.wallet import Wallet, WalletTransaction
 from schemas.wallet import WalletResponse, WalletTransactionResponse
+from services.auth import get_current_user
 
 router = APIRouter(prefix="/wallets", tags=["Wallets"])
 
@@ -23,6 +24,7 @@ def _paise_to_inr_display(paise: int) -> str:
 async def get_wallet(
     wallet_id: str,
     db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ) -> WalletResponse:
     try:
         wid = _uuid.UUID(wallet_id)

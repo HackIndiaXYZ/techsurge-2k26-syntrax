@@ -14,7 +14,18 @@ import {
   ApiError,
 } from './types';
 
+import { createClient } from './supabase';
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+const getAuthHeader = async () => {
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) {
+    return { Authorization: `Bearer ${session.access_token}` };
+  }
+  return {};
+};
 
 /**
  * Generic fetch wrapper with typed error handling.
@@ -23,10 +34,12 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   let res: Response;
   try {
+    const authHeader = await getAuthHeader();
     res = await fetch(`${API_BASE}${path}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...authHeader,
         ...options?.headers,
       },
     });
