@@ -5,9 +5,16 @@ import { cookies } from 'next/headers';
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
+  const token_hash = requestUrl.searchParams.get('token_hash');
+  const type = requestUrl.searchParams.get('type');
   const next = requestUrl.searchParams.get('next') ?? '/dashboard';
+  const error_description = requestUrl.searchParams.get('error_description');
+  
+  if (error_description) {
+    return NextResponse.redirect(`${requestUrl.origin}/login?error=${encodeURIComponent(error_description)}`);
+  }
 
-  if (code) {
+  if (code || (token_hash && type)) {
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,11 +33,24 @@ export async function GET(request: Request) {
       }
     );
     
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    let error = null;
+    
+    if (code) {
+      const { error: codeError } = await supabase.auth.exchangeCodeForSession(code);
+      error = codeError;
+    } else if (token_hash && type) {
+      const { error: otpError } = await supabase.auth.verifyOtp({
+        token_hash,
+        type: type as any,
+      });
+      error = otpError;
+    }
+    
     if (!error) {
       return NextResponse.redirect(`${requestUrl.origin}${next}`);
     } else {
-      console.error('Error exchanging code:', error);
+      console.error('Error in auth callback:', error);
+      return NextResponse.redirect(`${requestUrl.origin}/login?error=${encodeURIComponent(error.message)}`);
     }
   }
 

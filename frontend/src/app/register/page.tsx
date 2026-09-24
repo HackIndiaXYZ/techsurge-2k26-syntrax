@@ -33,6 +33,9 @@ export default function RegisterPage() {
       const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
 
       if (authError) throw authError;
@@ -61,6 +64,9 @@ export default function RegisterPage() {
       const { error: resendError } = await supabase.auth.resend({
         type: 'signup',
         email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
       if (resendError) throw resendError;
       alert('Confirmation email resent. Please check your inbox.');
