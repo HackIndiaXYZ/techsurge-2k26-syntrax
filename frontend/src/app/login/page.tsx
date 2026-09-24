@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Leaf, Mail, Lock, Eye, EyeOff, Play, ShieldCheck, Cloud, Shield, Umbrella, Users, CheckCircle, BarChart3, AlertCircle, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
@@ -12,6 +12,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // Use a simple effect to grab URL search params without breaking SSR if possible
+  // In Next.js client component, we can use `typeof window !== 'undefined'`
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlError = params.get('error');
+      if (urlError) setError(urlError);
+    }
+  }, []);
   const [loading, setLoading] = useState(false);
 
   const supabase = createClient();
