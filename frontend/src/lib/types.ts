@@ -183,6 +183,18 @@ export interface AuditListResponse {
   events: AuditEventResponse[];
 }
 
+// ── Identity ─────────────────────────────────────────────────────────────────
+export interface IdentityResponse {
+  policyholder_id: string;
+  display_name: string;
+  phone_number: string | null;
+  phone_verified: boolean;
+  policies: {
+    policy_id: string;
+    wallet_id: string | null;
+  }[];
+}
+
 // ── API Error ───────────────────────────────────────────────────────────────
 export interface ApiErrorDetail {
   error: string;

@@ -1,7 +1,7 @@
 import logging
 import jwt
 from typing import Optional
-from fastapi import Request, HTTPException, Security
+from fastapi import Request, HTTPException, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from config import get_settings
 
@@ -51,3 +51,79 @@ def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Secur
     token = credentials.credentials
     user_payload = verify_supabase_jwt(token)
     return user_payload
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from database import get_db
+from sqlalchemy import select
+from models.policyholder import Policyholder
+import uuid
+
+async def get_current_policyholder(
+    payload: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> Policyholder:
+    auth_user_id_str = payload.get("sub")
+    if not auth_user_id_str:
+        raise HTTPException(status_code=401, detail="Invalid token payload (missing sub)")
+    try:
+        auth_user_id = uuid.UUID(auth_user_id_str)
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid sub format")
+    
+    # 1. Look up existing policyholder
+    ph = await db.scalar(select(Policyholder).where(Policyholder.auth_user_id == auth_user_id))
+    
+    # 2. Create if not exists (Idempotent profile creation)
+    if not ph:
+        ph = Policyholder(
+            auth_user_id=auth_user_id,
+            display_name=payload.get("email") or "New Policyholder",
+            phone_verified=False
+        )
+        db.add(ph)
+        await db.flush()
+        
+        # Hackathon: Automatically provision a Demo Policy and Wallet
+        from models.policy import Policy, PolicyStatus, TriggerRule
+        from models.wallet import Wallet
+        import uuid
+        from datetime import datetime, timezone
+        
+        policy = Policy(
+            policyholder_id=ph.id,
+            region_id=uuid.UUID("00000000-0000-0000-0000-000000000001"), # Demo region
+            name="Kaveri Delta Flood Parametric Insurance 2026",
+            status=PolicyStatus.ACTIVE,
+            payout_amount_paise=1_000_000,
+            currency="INR",
+            valid_from=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            valid_until=datetime(2026, 12, 31, 23, 59, 59, tzinfo=timezone.utc),
+        )
+        db.add(policy)
+        await db.flush()
+        
+        rule = TriggerRule(
+            policy_id=policy.id,
+            metric="rainfall",
+            threshold_value=100.0,
+            threshold_operator=">=",
+            unit="mm",
+            observation_window_minutes=60,
+            consensus_quorum=2,
+            consensus_tolerance=5.0,
+        )
+        db.add(rule)
+        await db.flush()
+        
+        policy.trigger_rule_id = rule.id
+        
+        
+        wallet = Wallet(
+            policy_id=policy.id,
+            currency="INR",
+            balance_paise=0,
+        )
+        db.add(wallet)
+        await db.flush()
+        
+    return ph

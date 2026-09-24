@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
-import { useApp, DEMO_POLICY_ID, DEMO_WALLET_ID } from '@/lib/context';
+import { useApp } from '@/lib/context';
 import { api } from '@/lib/api';
 import {
   HealthResponse,
@@ -14,7 +14,7 @@ import {
 import { MapPin, Calendar, CheckCircle, CloudRain, Users, Zap, IndianRupee, Clock, ArrowRight, Cloud, Cpu, Shield, Wallet, Brain, TrendingUp, AlertTriangle, Loader2, XCircle, WifiOff } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { simulationResult, simulationLoading } = useApp();
+  const { simulationResult, simulationLoading, identity } = useApp();
 
   // ── Backend state ──────────────────────────────────────────────────────────
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -32,22 +32,29 @@ export default function DashboardPage() {
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      if (!identity) {
+        setLoading(false);
+        return;
+      }
+      const policyId = identity.policies[0]?.policy_id;
+      const walletId = identity.policies[0]?.wallet_id;
+      
       setLoading(true);
       setError(null);
       try {
         const [h, p, pol, w, a] = await Promise.allSettled([
           api.getHealth(),
           api.getProvidersHealth(),
-          api.getPolicy(DEMO_POLICY_ID),
-          api.getWallet(DEMO_WALLET_ID),
-          api.getAuditEvents(DEMO_POLICY_ID, 10),
+          policyId ? api.getPolicy(policyId) : Promise.resolve(null),
+          walletId ? api.getWallet(walletId) : Promise.resolve(null),
+          policyId ? api.getAuditEvents(policyId, 10) : Promise.resolve({ events: [] as any[], total: 0, policy_id: policyId }),
         ]);
         if (cancelled) return;
         setHealth(h.status === 'fulfilled' ? h.value : null);
         setProviders(p.status === 'fulfilled' ? p.value : []);
         setPolicy(pol.status === 'fulfilled' ? pol.value : null);
         setWallet(w.status === 'fulfilled' ? w.value : null);
-        setAudit(a.status === 'fulfilled' ? a.value : null);
+        setAudit(a.status === 'fulfilled' ? a.value as AuditListResponse : null);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load data');
       } finally {
@@ -56,7 +63,7 @@ export default function DashboardPage() {
     }
     load();
     return () => { cancelled = true; };
-  }, [simulationResult]); // re-fetch when simulation result changes
+  }, [simulationResult, identity]); // re-fetch when simulation result or identity changes
 
   // ── Derive pipeline state from simulation result ───────────────────────────
   const sim = simulationResult;

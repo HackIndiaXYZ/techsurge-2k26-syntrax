@@ -11,7 +11,8 @@ from sqlalchemy.orm import selectinload
 from database import get_db
 from models.wallet import Wallet, WalletTransaction
 from schemas.wallet import WalletResponse, WalletTransactionResponse
-from services.auth import get_current_user
+from services.auth import get_current_policyholder
+from models.policyholder import Policyholder
 
 router = APIRouter(prefix="/wallets", tags=["Wallets"])
 
@@ -24,7 +25,7 @@ def _paise_to_inr_display(paise: int) -> str:
 async def get_wallet(
     wallet_id: str,
     db: AsyncSession = Depends(get_db),
-    user: dict = Depends(get_current_user),
+    policyholder: Policyholder = Depends(get_current_policyholder),
 ) -> WalletResponse:
     try:
         wid = _uuid.UUID(wallet_id)
@@ -34,13 +35,16 @@ async def get_wallet(
     wallet = await db.scalar(
         select(Wallet)
         .where(Wallet.id == wid)
-        .options(selectinload(Wallet.transactions))
+        .options(selectinload(Wallet.transactions), selectinload(Wallet.policy))
     )
     if wallet is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"error": "NOT_FOUND", "message": f"Wallet {wallet_id!r} not found."},
         )
+
+    if not wallet.policy or wallet.policy.policyholder_id != policyholder.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this wallet")
 
     txs = [
         WalletTransactionResponse(

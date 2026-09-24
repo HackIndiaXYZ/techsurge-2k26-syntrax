@@ -6,19 +6,20 @@ import {
   SimulationResponse,
   SimulationRequest,
   SimulationScenario,
+  IdentityResponse,
 } from '@/lib/types';
 
 // ── Demo scenario selection (for the UI scenario buttons) ────────────────────
 export type DemoScenario = 'normal' | 'corrupted' | 'no_consensus' | 'duplicate';
 
 // ── Known IDs from actual database ───────────────────────────────────────────
-export const DEMO_POLICY_ID = 'e5000000-0000-0000-0000-000000000001';
-export const DEMO_WALLET_ID = 'f6000000-0000-0000-0000-000000000001';
-export const DEMO_REGION_ID = 'b2000000-0000-0000-0000-000000000001';
+export const DEMO_POLICY_ID = '00000000-0000-0000-0000-000000000002';
+export const DEMO_WALLET_ID = '00000000-0000-0000-0000-000000000003';
+export const DEMO_REGION_ID = '00000000-0000-0000-0000-000000000001';
 export const DEMO_SOURCE_IDS = [
-  'c3000000-0000-0000-0000-000000000001', // openmeteo
-  'c3000000-0000-0000-0000-000000000002', // accuweather
-  'c3000000-0000-0000-0000-000000000003', // imd
+  '00000000-0000-0000-0000-000000000010', // openmeteo
+  '00000000-0000-0000-0000-000000000011', // accuweather
+  '00000000-0000-0000-0000-000000000012', // imd
 ];
 
 // ── Observation values for each demo scenario ────────────────────────────────
@@ -45,6 +46,11 @@ interface AppContextType {
   setIsAuthenticated: (v: boolean) => void;
   isDarkMode: boolean;
   setIsDarkMode: (v: boolean) => void;
+
+  // Identity
+  identity: IdentityResponse | null;
+  identityLoading: boolean;
+  reloadIdentity: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -54,19 +60,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
+  const [identity, setIdentity] = useState<IdentityResponse | null>(null);
+  const [identityLoading, setIdentityLoading] = useState(false);
+
   const [simulationResult, setSimulationResult] = useState<SimulationResponse | null>(null);
   const [simulationLoading, setSimulationLoading] = useState(false);
   const [simulationError, setSimulationError] = useState<string | null>(null);
+
+  const reloadIdentity = useCallback(async () => {
+    try {
+      setIdentityLoading(true);
+      const res = await api.getMe();
+      setIdentity(res);
+    } catch (err) {
+      console.error("Failed to load identity:", err);
+      setIdentity(null);
+    } finally {
+      setIdentityLoading(false);
+    }
+  }, []);
+
+  // Fetch identity if authenticated
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      reloadIdentity();
+    } else {
+      setIdentity(null);
+    }
+  }, [isAuthenticated, reloadIdentity]);
 
   const runSimulation = useCallback(async (selectedScenario: DemoScenario): Promise<SimulationResponse | null> => {
     setSimulationLoading(true);
     setSimulationError(null);
 
     const config = SCENARIO_OBSERVATIONS[selectedScenario];
+    const policyId = identity?.policies?.[0]?.policy_id || DEMO_POLICY_ID;
 
     const request: SimulationRequest = {
       scenario: config.backendScenario,
-      policy_id: DEMO_POLICY_ID,
+      policy_id: policyId,
       region_id: DEMO_REGION_ID,
       observations: config.values.map((value, i) => ({
         source_id: DEMO_SOURCE_IDS[i],
@@ -87,7 +119,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } finally {
       setSimulationLoading(false);
     }
-  }, []);
+  }, [identity]);
 
   return (
     <AppContext.Provider value={{
@@ -95,6 +127,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       simulationResult, simulationLoading, simulationError, runSimulation,
       isAuthenticated, setIsAuthenticated,
       isDarkMode, setIsDarkMode,
+      identity, identityLoading, reloadIdentity,
     }}>
       {children}
     </AppContext.Provider>

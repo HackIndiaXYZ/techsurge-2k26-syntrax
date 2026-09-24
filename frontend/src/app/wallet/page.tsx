@@ -3,19 +3,33 @@
 import { useEffect, useState, useCallback } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { api } from '@/lib/api';
-import { DEMO_WALLET_ID } from '@/lib/context';
+import { useApp } from '@/lib/context';
 import { WalletResponse } from '@/lib/types';
 import { Wallet, CreditCard, RefreshCw, ArrowRight, Download, BarChart3, Zap, CheckCircle, XCircle, AlertTriangle, Clock, Info, Loader2, WifiOff } from 'lucide-react';
 
 export default function WalletPage() {
+  const { identity, identityLoading } = useApp();
   const [wallet, setWallet] = useState<WalletResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadWallet = useCallback(async () => {
+    if (!identity && !identityLoading) {
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+    const walletId = identity?.policies?.[0]?.wallet_id;
+    if (!walletId) {
+      if (!identityLoading) {
+        setLoading(false);
+        setRefreshing(false);
+      }
+      return;
+    }
     try {
-      const w = await api.getWallet(DEMO_WALLET_ID);
+      const w = await api.getWallet(walletId);
       setWallet(w);
       setError(null);
     } catch (err) {
@@ -24,7 +38,7 @@ export default function WalletPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [identity, identityLoading]);
 
   useEffect(() => { loadWallet(); }, [loadWallet]);
 

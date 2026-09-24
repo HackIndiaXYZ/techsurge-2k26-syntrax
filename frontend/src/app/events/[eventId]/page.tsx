@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { api } from '@/lib/api';
-import { DEMO_POLICY_ID, useApp } from '@/lib/context';
+import { useApp } from '@/lib/context';
 import { AuditListResponse, AuditEventResponse } from '@/lib/types';
 import { use } from 'react';
 import { CheckCircle, AlertTriangle, Clock, IndianRupee, Shield, Brain, FileText, BarChart3, ClipboardList, Loader2, WifiOff } from 'lucide-react';
 
 export default function EventDetailPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = use(params);
-  const { simulationResult } = useApp();
+  const { simulationResult, identity, identityLoading } = useApp();
   const [activeTab, setActiveTab] = useState('timeline');
   const [audit, setAudit] = useState<AuditListResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,8 +19,17 @@ export default function EventDetailPage({ params }: { params: Promise<{ eventId:
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      if (!identity && !identityLoading) {
+        setLoading(false);
+        return;
+      }
+      const policyId = identity?.policies?.[0]?.policy_id;
+      if (!policyId) {
+        if (!identityLoading) setLoading(false);
+        return;
+      }
       try {
-        const data = await api.getAuditEvents(DEMO_POLICY_ID, 100);
+        const data = await api.getAuditEvents(policyId, 100);
         if (!cancelled) setAudit(data);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load event data');
@@ -30,7 +39,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ eventId:
     }
     load();
     return () => { cancelled = true; };
-  }, [eventId]);
+  }, [eventId, identity, identityLoading]);
 
   // Filter audit events matching this event's correlation_id
   const relatedEvents: AuditEventResponse[] = audit?.events.filter(

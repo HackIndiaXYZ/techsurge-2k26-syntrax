@@ -15,7 +15,8 @@ from database import get_db
 from models.audit import AuditEvent
 from models.policy import Policy
 from schemas.audit import AuditEventResponse, AuditListResponse
-from services.auth import get_current_user
+from services.auth import get_current_policyholder
+from models.policyholder import Policyholder
 
 router = APIRouter(prefix="/policies", tags=["Audit"])
 
@@ -25,7 +26,7 @@ async def get_policy_audit(
     policy_id: str,
     limit: int = Query(default=50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
-    user: dict = Depends(get_current_user),
+    policyholder: Policyholder = Depends(get_current_policyholder),
 ) -> AuditListResponse:
     try:
         pid = _uuid.UUID(policy_id)
@@ -42,6 +43,9 @@ async def get_policy_audit(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"error": "NOT_FOUND", "message": f"Policy {policy_id!r} not found."},
         )
+
+    if policy.policyholder_id != policyholder.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this policy")
 
     # audit_events has no policy_id column — return all events for the demo system
     total = await db.scalar(select(func.count(AuditEvent.id)))

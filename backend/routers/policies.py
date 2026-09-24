@@ -11,7 +11,8 @@ from sqlalchemy.orm import selectinload
 from database import get_db
 from models.policy import Policy
 from schemas.policy import PolicyResponse
-from services.auth import get_current_user
+from services.auth import get_current_policyholder
+from models.policyholder import Policyholder
 
 router = APIRouter(prefix="/policies", tags=["Policies"])
 
@@ -24,7 +25,7 @@ def _paise_to_inr_display(paise: int) -> str:
 async def get_policy(
     policy_id: str,
     db: AsyncSession = Depends(get_db),
-    user: dict = Depends(get_current_user),
+    policyholder: Policyholder = Depends(get_current_policyholder),
 ) -> PolicyResponse:
     try:
         pid = _uuid.UUID(policy_id)
@@ -41,6 +42,10 @@ async def get_policy(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"error": "NOT_FOUND", "message": f"Policy {policy_id!r} not found."},
         )
+
+    # Protect against IDOR
+    if policy.policyholder_id != policyholder.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this policy")
 
     rule = policy.trigger_rule
 

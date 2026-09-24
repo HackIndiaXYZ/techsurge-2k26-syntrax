@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { api } from '@/lib/api';
-import { DEMO_POLICY_ID } from '@/lib/context';
+import { useApp } from '@/lib/context';
 import { PolicyResponse } from '@/lib/types';
 import { Plus, CloudRain, Radio, Zap, ShieldCheck, Eye, ChevronLeft, ChevronRight, Loader2, WifiOff } from 'lucide-react';
 
 export default function PoliciesPage() {
+  const { identity, identityLoading } = useApp();
   const [policy, setPolicy] = useState<PolicyResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,8 +16,17 @@ export default function PoliciesPage() {
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      if (!identity && !identityLoading) {
+        setLoading(false);
+        return;
+      }
+      const policyId = identity?.policies?.[0]?.policy_id;
+      if (!policyId) {
+        if (!identityLoading) setLoading(false);
+        return;
+      }
       try {
-        const p = await api.getPolicy(DEMO_POLICY_ID);
+        const p = await api.getPolicy(policyId);
         if (!cancelled) setPolicy(p);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load policy');
@@ -26,7 +36,7 @@ export default function PoliciesPage() {
     }
     load();
     return () => { cancelled = true; };
-  }, []);
+  }, [identity, identityLoading]);
 
   if (loading) {
     return (

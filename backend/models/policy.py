@@ -38,7 +38,9 @@ class Policy(Base, TimestampMixin):
     __tablename__ = "policies"
 
     id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    policyholder_id: Mapped[uuid.UUID | None] = mapped_column(PgUUID(as_uuid=True), nullable=True)
+    policyholder_id: Mapped[uuid.UUID | None] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("policyholders.id", ondelete="RESTRICT"), nullable=True
+    )
     region_id: Mapped[uuid.UUID] = mapped_column(
         PgUUID(as_uuid=True), ForeignKey("micro_regions.id", ondelete="RESTRICT"), nullable=False
     )
@@ -65,6 +67,7 @@ class Policy(Base, TimestampMixin):
     updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
+    policyholder: Mapped["Policyholder"] = relationship("Policyholder", back_populates="policies")
     region: Mapped["MicroRegion"] = relationship("MicroRegion", back_populates="policies")
     # trigger_rule via trigger_rule_id FK on this table
     trigger_rule: Mapped["TriggerRule"] = relationship(

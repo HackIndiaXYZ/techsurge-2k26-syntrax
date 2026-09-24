@@ -11,6 +11,7 @@ import {
   WalletResponse,
   PayoutResponse,
   AuditListResponse,
+  IdentityResponse,
   ApiError,
 } from './types';
 
@@ -69,6 +70,11 @@ export const api = {
   // ── Health ──────────────────────────────────────────────────────────────
   async getHealth(): Promise<HealthResponse> {
     return apiFetch<HealthResponse>('/health', { cache: 'no-store' });
+  },
+
+  // ── Identity ────────────────────────────────────────────────────────────
+  async getMe(): Promise<IdentityResponse> {
+    return apiFetch<IdentityResponse>('/me', { cache: 'no-store' });
   },
 
   // ── Weather ─────────────────────────────────────────────────────────────

@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
 import { api } from '@/lib/api';
-import { DEMO_POLICY_ID } from '@/lib/context';
+import { useApp } from '@/lib/context';
 import { AuditListResponse } from '@/lib/types';
 import Link from 'next/link';
 import { Eye, Filter, Loader2, WifiOff } from 'lucide-react';
 
 export default function EventsPage() {
+  const { identity, identityLoading } = useApp();
   const [audit, setAudit] = useState<AuditListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,8 +17,17 @@ export default function EventsPage() {
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      if (!identity && !identityLoading) {
+        setLoading(false);
+        return;
+      }
+      const policyId = identity?.policies?.[0]?.policy_id;
+      if (!policyId) {
+        if (!identityLoading) setLoading(false);
+        return;
+      }
       try {
-        const data = await api.getAuditEvents(DEMO_POLICY_ID, 50);
+        const data = await api.getAuditEvents(policyId, 50);
         if (!cancelled) setAudit(data);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load events');
@@ -27,7 +37,7 @@ export default function EventsPage() {
     }
     load();
     return () => { cancelled = true; };
-  }, []);
+  }, [identity, identityLoading]);
 
   if (loading) {
     return (

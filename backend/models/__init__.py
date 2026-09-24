@@ -14,6 +14,7 @@ from models.trigger import TriggerEvaluation, TriggerStatus  # noqa: F401
 from models.payout import Payout, PayoutStatus  # noqa: F401
 from models.wallet import Wallet, WalletTransaction  # noqa: F401
 from models.audit import AuditEvent, AuditEventType  # noqa: F401
+from models.policyholder import Policyholder  # noqa: F401
 
 __all__ = [
     "Base",
@@ -26,5 +27,6 @@ __all__ = [
     "Payout", "PayoutStatus",
     "Wallet", "WalletTransaction",
     "AuditEvent", "AuditEventType",
+    "Policyholder",
 ]
 
