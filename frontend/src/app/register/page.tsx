@@ -16,6 +16,8 @@ export default function RegisterPage() {
 
   const supabase = createClient();
 
+  const [success, setSuccess] = useState(false);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -38,9 +40,36 @@ export default function RegisterPage() {
       if (data.session) {
         router.push('/dashboard');
         router.refresh();
+      } else {
+        setSuccess(true);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to register');
+      if (err.message && err.message.toLowerCase().includes('rate limit')) {
+        setError('Email delivery rate limit exceeded. Please wait a few minutes before requesting another email, or check your inbox.');
+      } else {
+        setError(err.message || 'Failed to register');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+      if (resendError) throw resendError;
+      alert('Confirmation email resent. Please check your inbox.');
+    } catch (err: any) {
+      if (err.message && err.message.toLowerCase().includes('rate limit')) {
+        setError('Email delivery rate limit exceeded. Please wait before requesting again.');
+      } else {
+        setError(err.message || 'Failed to resend confirmation email.');
+      }
     } finally {
       setLoading(false);
     }
@@ -158,117 +187,170 @@ export default function RegisterPage() {
           padding: '60px',
           borderLeft: '1px solid var(--color-tf-border)',
         }}>
-          <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Create an account</h2>
-          <p style={{ fontSize: '14px', color: 'var(--color-tf-text-muted)', marginBottom: '32px' }}>Join TerraFlux to protect your livelihood</p>
-
-          <form onSubmit={handleRegister}>
-            {/* Email */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '12px', color: 'var(--color-tf-text-muted)', fontWeight: 500, display: 'block', marginBottom: '6px' }}>Email</label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-tf-text-dim)' }} />
-                <input
-                  type="email"
-                  placeholder="you@terraflux.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '11px 12px 11px 40px',
-                    backgroundColor: 'var(--color-tf-bg)',
-                    border: '1px solid var(--color-tf-border)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '14px',
-                    outline: 'none',
-                  }}
-                />
+          {success ? (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <div style={{
+                width: '64px', height: '64px', borderRadius: '50%',
+                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 24px auto',
+              }}>
+                <Mail size={32} color="#10b981" />
               </div>
-            </div>
+              <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>Check your email</h2>
+              <p style={{ fontSize: '15px', color: 'var(--color-tf-text-muted)', marginBottom: '32px', lineHeight: 1.6 }}>
+                We&apos;ve sent a confirmation link to<br/>
+                <span style={{ color: '#e2e8f0', fontWeight: 600 }}>{email}</span>
+              </p>
+              
+              <div style={{ padding: '16px', backgroundColor: 'rgba(16, 185, 129, 0.05)', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.1)', marginBottom: '32px' }}>
+                <p style={{ fontSize: '13px', color: 'var(--color-tf-text)', margin: 0 }}>
+                  Please click the link in that email to confirm your account before signing in.
+                </p>
+              </div>
 
-            {/* Password */}
-            <div style={{ marginBottom: '8px' }}>
-              <label style={{ fontSize: '12px', color: 'var(--color-tf-text-muted)', fontWeight: 500, display: 'block', marginBottom: '6px' }}>Password</label>
-              <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-tf-text-dim)' }} />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '11px 40px 11px 40px',
-                    backgroundColor: 'var(--color-tf-bg)',
-                    border: '1px solid var(--color-tf-border)',
-                    borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '14px',
-                    outline: 'none',
-                  }}
-                />
+              {error && (
+                <div style={{ padding: '10px 12px', marginBottom: '24px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'left' }}>
+                  <AlertCircle size={16} color="#ef4444" style={{ flexShrink: 0 }} />
+                  <span style={{ fontSize: '13px', color: '#ef4444' }}>{error}</span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <Link href="/login" style={{
+                  display: 'block', width: '100%', padding: '12px', backgroundColor: 'var(--color-tf-green)', color: '#0a0e14',
+                  borderRadius: '8px', fontSize: '15px', fontWeight: 700, textDecoration: 'none'
+                }}>
+                  Go to Sign in
+                </Link>
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-tf-text-dim)' }}
+                  onClick={handleResend}
+                  disabled={loading}
+                  style={{
+                    width: '100%', padding: '12px', backgroundColor: 'transparent', color: 'var(--color-tf-text-dim)',
+                    border: '1px solid var(--color-tf-border)', borderRadius: '8px', fontSize: '14px', fontWeight: 500,
+                    cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, transition: 'all 0.2s',
+                  }}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {loading ? 'Sending...' : 'Resend confirmation email'}
                 </button>
               </div>
             </div>
+          ) : (
+            <>
+              <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Create an account</h2>
+              <p style={{ fontSize: '14px', color: 'var(--color-tf-text-muted)', marginBottom: '32px' }}>Join TerraFlux to protect your livelihood</p>
 
-            <div style={{ textAlign: 'right', marginBottom: '24px' }}>
-              <span style={{ fontSize: '12px', color: 'var(--color-tf-text-dim)' }}>Password must be at least 6 characters</span>
-            </div>
+              <form onSubmit={handleRegister}>
+                {/* Email */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ fontSize: '12px', color: 'var(--color-tf-text-muted)', fontWeight: 500, display: 'block', marginBottom: '6px' }}>Email</label>
+                  <div style={{ position: 'relative' }}>
+                    <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-tf-text-dim)' }} />
+                    <input
+                      type="email"
+                      placeholder="you@terraflux.com"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '11px 12px 11px 40px',
+                        backgroundColor: 'var(--color-tf-bg)',
+                        border: '1px solid var(--color-tf-border)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
 
-            {/* Error message */}
-            {error && (
-              <div style={{ padding: '10px 12px', marginBottom: '16px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <AlertCircle size={16} color="#ef4444" />
-                <span style={{ fontSize: '13px', color: '#ef4444' }}>{error}</span>
+                {/* Password */}
+                <div style={{ marginBottom: '8px' }}>
+                  <label style={{ fontSize: '12px', color: 'var(--color-tf-text-muted)', fontWeight: 500, display: 'block', marginBottom: '6px' }}>Password</label>
+                  <div style={{ position: 'relative' }}>
+                    <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-tf-text-dim)' }} />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '11px 40px 11px 40px',
+                        backgroundColor: 'var(--color-tf-bg)',
+                        border: '1px solid var(--color-tf-border)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '14px',
+                        outline: 'none',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-tf-text-dim)' }}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ textAlign: 'right', marginBottom: '24px' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--color-tf-text-dim)' }}>Password must be at least 6 characters</span>
+                </div>
+
+                {/* Error message */}
+                {error && (
+                  <div style={{ padding: '10px 12px', marginBottom: '16px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AlertCircle size={16} color="#ef4444" style={{ flexShrink: 0 }} />
+                    <span style={{ fontSize: '13px', color: '#ef4444' }}>{error}</span>
+                  </div>
+                )}
+
+                {/* Sign in button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    backgroundColor: 'var(--color-tf-green)',
+                    color: '#0a0e14',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    fontWeight: 700,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.7 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    transition: 'background-color 0.2s',
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                      Signing up...
+                      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+                    </>
+                  ) : (
+                    'Create Account →'
+                  )}
+                </button>
+              </form>
+
+              <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                <span style={{ fontSize: '13px', color: 'var(--color-tf-text-muted)' }}>Already have an account? </span>
+                <Link href="/login" style={{ fontSize: '13px', color: 'var(--color-tf-green)', textDecoration: 'none', fontWeight: 500 }}>
+                  Sign in
+                </Link>
               </div>
-            )}
-
-            {/* Sign in button */}
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: 'var(--color-tf-green)',
-                color: '#0a0e14',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '15px',
-                fontWeight: 700,
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                transition: 'background-color 0.2s',
-              }}
-            >
-              {loading ? (
-                <>
-                  <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                  Signing up...
-                  <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-                </>
-              ) : (
-                'Create Account →'
-              )}
-            </button>
-          </form>
-
-          <div style={{ marginTop: '24px', textAlign: 'center' }}>
-            <span style={{ fontSize: '13px', color: 'var(--color-tf-text-muted)' }}>Already have an account? </span>
-            <Link href="/login" style={{ fontSize: '13px', color: 'var(--color-tf-green)', textDecoration: 'none', fontWeight: 500 }}>
-              Sign in
-            </Link>
-          </div>
+            </>
+          )}
           {/* Trust badge */}
           <div style={{
             marginTop: '24px',

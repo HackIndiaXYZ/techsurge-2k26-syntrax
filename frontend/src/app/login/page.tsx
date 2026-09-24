@@ -40,7 +40,13 @@ export default function LoginPage() {
         router.refresh();
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+      if (err.message && err.message.toLowerCase().includes('email not confirmed')) {
+        setError('Please confirm your email address before signing in. Check your inbox for the confirmation link.');
+      } else if (err.message && err.message.toLowerCase().includes('rate limit')) {
+        setError('Login rate limit exceeded. Please wait a few minutes.');
+      } else {
+        setError(err.message || 'Failed to sign in');
+      }
     } finally {
       setLoading(false);
     }
