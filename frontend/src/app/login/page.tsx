@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   // Use a simple effect to grab URL search params without breaking SSR if possible
   // In Next.js client component, we can use `typeof window !== 'undefined'`
@@ -20,6 +21,9 @@ export default function LoginPage() {
       const params = new URLSearchParams(window.location.search);
       const urlError = params.get('error');
       if (urlError) setError(urlError);
+      
+      const urlMessage = params.get('message');
+      if (urlMessage) setMessage(urlMessage);
     }
   }, []);
   const [loading, setLoading] = useState(false);
@@ -236,6 +240,14 @@ export default function LoginPage() {
             <div style={{ textAlign: 'right', marginBottom: '24px' }}>
               <a href="#" style={{ fontSize: '12px', color: 'var(--color-tf-green)', textDecoration: 'none' }}>Forgot password?</a>
             </div>
+
+            {/* Success message */}
+            {message && (
+              <div style={{ padding: '10px 12px', marginBottom: '16px', backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckCircle size={16} color="#10b981" />
+                <span style={{ fontSize: '13px', color: '#10b981' }}>{message}</span>
+              </div>
+            )}
 
             {/* Error message */}
             {error && (

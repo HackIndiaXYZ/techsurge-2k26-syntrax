@@ -50,6 +50,12 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${requestUrl.origin}${next}`);
     } else {
       console.error('Error in auth callback:', error);
+      if (error.message && error.message.includes('PKCE code verifier not found')) {
+        // The email was confirmed by the Supabase API, but we couldn't automatically log them in
+        // because they clicked the link in a different browser/device.
+        // That's fine, we just redirect them to login manually.
+        return NextResponse.redirect(`${requestUrl.origin}/login?message=Email+confirmed+successfully!+Please+log+in+to+continue.`);
+      }
       return NextResponse.redirect(`${requestUrl.origin}/login?error=${encodeURIComponent(error.message)}`);
     }
   }
