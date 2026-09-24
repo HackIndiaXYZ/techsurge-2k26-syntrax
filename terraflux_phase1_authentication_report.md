@@ -36,3 +36,29 @@ Phase 1 has successfully replaced the static, simulated login interface with a p
 
 ## 6. Next Steps
 The application is now prepared for Phase 2, which will focus on deploying genuine cloud services and migrating away from local stubs.
+
+## 7. Production Deployment Audit (Phase 1 Fix)
+Upon manual verification of the production deployment at `https://terrafluxapp.xyz/dashboard`, a critical failure ("Network Error / backend not connected") was discovered. The root cause analysis determined the following environment and configuration drift between local and production:
+
+### Root Cause & Fixes
+1. **Missing Vercel Environment Variables:**
+   - **Issue:** The Vercel production environment lacked `NEXT_PUBLIC_API_URL`, causing `src/lib/api.ts` to default to `http://localhost:8000`. This resulted in the browser blocking requests due to mixed content/CORS and generating the observed "Network Error".
+   - **Issue:** The Vercel environment was also missing the critical Supabase credentials (`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`), preventing the Supabase client from initializing and validating sessions.
+   - **Fix:** Added the necessary configuration variables to the Vercel production environment using the Vercel CLI (`vercel env add`).
+2. **Missing Frontend Deployment of Phase 1 Code:**
+   - **Issue:** The Phase 1 frontend code (which injects the JWT token in `api.ts` and intercepts unauthorized access via `middleware.ts`) was only committed locally. The version running on Vercel was the Phase 0 version, which lacked route protection (allowing the dashboard to be accessed without login).
+   - **Fix:** Pushed the Phase 1 changes to the `main` branch and triggered a fresh Vercel production deployment (`npx vercel --prod --yes`).
+3. **API Client Type Mismatch:**
+   - **Issue:** The Vercel build failed initially due to a TypeScript error in `api.ts` where headers were incorrectly merged, causing `HeadersInit` incompatibility.
+   - **Fix:** Refactored the `api.ts` `fetch` call to safely initialize a `Headers` object and append the `Authorization` header, successfully passing type checking and deploying to Vercel.
+
+**Current Status:**
+The production Vercel frontend is now correctly protected. Navigating to `https://terrafluxapp.xyz/dashboard` unauthenticated properly redirects to `/login`. The frontend API client is now correctly configured to point to `https://api.terrafluxapp.xyz` and injects the valid JWT bearer token.
+
+> **Note on Railway Backend:** The Phase 1 backend code (which enforces JWT validation) has been pushed to the `main` branch. Railway successfully built the backend, but it currently returns HTTP 500 on protected routes. **Fix Required:** You must manually add `SUPABASE_JWT_SECRET` to the Railway environment variables.
+
+### Supabase Production Redirect Configuration
+To ensure authentication flows (like OAuth or email confirmations) work in production, you must update the Supabase project configuration:
+1. Go to the **Supabase Dashboard** -> **Authentication** -> **URL Configuration**.
+2. **Site URL:** Set this to `https://terrafluxapp.xyz`.
+3. **Redirect URLs:** Add `https://terrafluxapp.xyz/**` to the allowed redirect URLs.
