@@ -44,9 +44,6 @@ class Policy(Base, TimestampMixin):
     region_id: Mapped[uuid.UUID] = mapped_column(
         PgUUID(as_uuid=True), ForeignKey("micro_regions.id", ondelete="RESTRICT"), nullable=False
     )
-    trigger_rule_id: Mapped[uuid.UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("trigger_rules.id", ondelete="SET NULL"), nullable=True
-    )
 
     # Payout — stored as integer paise (NEVER float)
     payout_amount_paise: Mapped[int] = mapped_column(BigInteger, nullable=False)
@@ -69,17 +66,12 @@ class Policy(Base, TimestampMixin):
     # Relationships
     policyholder: Mapped["Policyholder"] = relationship("Policyholder", back_populates="policies")
     region: Mapped["MicroRegion"] = relationship("MicroRegion", back_populates="policies")
-    # trigger_rule via trigger_rule_id FK on this table
+    # trigger_rule via policy_id FK on TriggerRule table
     trigger_rule: Mapped["TriggerRule"] = relationship(
-        "TriggerRule", back_populates="policies",
-        foreign_keys=[trigger_rule_id], uselist=False
+        "TriggerRule", back_populates="policy",
+        uselist=False
     )
-    # Also allow reverse lookup from TriggerRule.policy_id
-    trigger_rule_reverse: Mapped["TriggerRule"] = relationship(
-        "TriggerRule", back_populates="policy_reverse",
-        foreign_keys="TriggerRule.policy_id", uselist=False,
-        viewonly=True
-    )
+
     payouts: Mapped[list["Payout"]] = relationship("Payout", back_populates="policy")
     wallets: Mapped[list["Wallet"]] = relationship("Wallet", back_populates="policy")
 
@@ -133,16 +125,11 @@ class TriggerRule(Base, TimestampMixin):
     consensus_tolerance: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     # Relationships
-    policies: Mapped["Policy"] = relationship(
+    policy: Mapped["Policy"] = relationship(
         "Policy", back_populates="trigger_rule",
-        foreign_keys="Policy.trigger_rule_id", uselist=False,
-        viewonly=True
+        uselist=False
     )
-    policy_reverse: Mapped["Policy"] = relationship(
-        "Policy", back_populates="trigger_rule_reverse",
-        foreign_keys=[policy_id], uselist=False,
-        viewonly=True
-    )
+
 
     def __repr__(self) -> str:
         return (

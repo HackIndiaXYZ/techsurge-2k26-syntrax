@@ -115,9 +115,6 @@ async def get_current_policyholder(
         db.add(rule)
         await db.flush()
         
-        policy.trigger_rule_id = rule.id
-        
-        
         wallet = Wallet(
             policy_id=policy.id,
             currency="INR",
