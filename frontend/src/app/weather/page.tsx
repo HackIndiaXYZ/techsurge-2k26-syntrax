@@ -55,9 +55,10 @@ function generateSparkline(base: number, variance: number, isOutlier: boolean) {
 }
 
 export default function WeatherPage() {
-  const { scenario, simulationResult, simulationLoading, simulationError, runSimulation } = useApp();
+  const { scenario, simulationResult, simulationLoading, simulationError, runSimulation, identity } = useApp();
   const [localLoading, setLocalLoading] = useState<DemoScenario | null>(null);
 
+  const hasPolicy = !!identity?.policies?.[0]?.policy_id;
   const sim = simulationResult;
 
   const handleRunScenario = async (key: DemoScenario) => {
@@ -303,24 +304,31 @@ export default function WeatherPage() {
         <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#fff', marginBottom: '4px' }}>Demo Scenario Controls</h3>
         <p style={{ fontSize: '12px', color: 'var(--color-tf-text-dim)', marginBottom: '16px' }}>Select a scenario to run a real backend simulation pipeline.</p>
 
+        {!hasPolicy && (
+          <div style={{ padding: '12px 16px', marginBottom: '16px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertTriangle size={16} color="#ef4444" />
+            <span style={{ fontSize: '12px', color: '#ef4444' }}>You need an active policy to run a simulation. Add a policy in the Policies page.</span>
+          </div>
+        )}
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
           {scenarios.map(s => (
             <button
               key={s.key}
               onClick={() => handleRunScenario(s.key)}
-              disabled={simulationLoading}
+              disabled={simulationLoading || !hasPolicy}
               style={{
                 padding: '14px',
                 backgroundColor: scenario === s.key ? 'rgba(16,185,129,0.08)' : 'var(--color-tf-surface)',
                 border: scenario === s.key ? '1px solid var(--color-tf-green)' : '1px solid var(--color-tf-border)',
                 borderRadius: '8px',
-                cursor: simulationLoading ? 'not-allowed' : 'pointer',
+                cursor: (simulationLoading || !hasPolicy) ? 'not-allowed' : 'pointer',
                 textAlign: 'left',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
                 transition: 'all 0.15s',
-                opacity: simulationLoading ? 0.6 : 1,
+                opacity: (simulationLoading || !hasPolicy) ? 0.6 : 1,
               }}
             >
               <div style={{ flex: 1 }}>

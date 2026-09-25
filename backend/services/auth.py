@@ -75,9 +75,12 @@ async def get_current_policyholder(
     
     # 2. Create if not exists (Idempotent profile creation)
     if not ph:
+        user_meta = payload.get("user_metadata", {})
+        display_name = user_meta.get("full_name") or user_meta.get("name") or None
+        
         ph = Policyholder(
             auth_user_id=auth_user_id,
-            display_name=payload.get("email") or "New Policyholder",
+            display_name=display_name,
             phone_verified=False
         )
         db.add(ph)

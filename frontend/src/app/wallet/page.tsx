@@ -140,8 +140,8 @@ export default function WalletPage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px' }}>
             {[
-              ['Wallet ID', wallet?.wallet_id?.substring(0, 12) + '...' || 'N/A'],
-              ['Policy ID', wallet?.policy_id?.substring(0, 12) + '...' || 'N/A'],
+              ['Wallet ID', wallet ? `${wallet.wallet_id.substring(0, 12)}...` : 'No wallet created yet'],
+              ['Policy ID', wallet ? `${wallet.policy_id.substring(0, 12)}...` : 'No policy found'],
               ['Currency', `${wallet?.currency || 'INR'} (Simulated)`],
               ['Balance (paise)', wallet?.balance_paise?.toLocaleString() || '0'],
               ['Transactions', String(txCount)],

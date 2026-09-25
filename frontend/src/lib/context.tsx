@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { api } from '@/lib/api';
+import { createClient } from '@/lib/supabase';
 import {
   SimulationResponse,
   SimulationRequest,
@@ -60,6 +61,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const [identity, setIdentity] = useState<IdentityResponse | null>(null);
   const [identityLoading, setIdentityLoading] = useState(false);
 
@@ -94,7 +110,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSimulationError(null);
 
     const config = SCENARIO_OBSERVATIONS[selectedScenario];
-    const policyId = identity?.policies?.[0]?.policy_id || DEMO_POLICY_ID;
+    const policyId = identity?.policies?.[0]?.policy_id;
+    
+    if (!policyId) {
+      setSimulationError("No active policy found. Please create a policy first.");
+      setSimulationLoading(false);
+      return null;
+    }
 
     const request: SimulationRequest = {
       scenario: config.backendScenario,

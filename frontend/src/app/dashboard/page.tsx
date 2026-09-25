@@ -126,7 +126,7 @@ export default function DashboardPage() {
       {/* Page header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#fff' }}>Good morning, Sanju 👋</h1>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#fff' }}>{identity?.display_name ? `Welcome back, ${identity.display_name}` : 'Welcome back'}</h1>
           <p style={{ fontSize: '13px', color: 'var(--color-tf-text-muted)', marginTop: '2px' }}>Here&apos;s your climate protection status today.</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -139,7 +139,7 @@ export default function DashboardPage() {
           {/* Backend status indicator */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', backgroundColor: 'var(--color-tf-card)', border: `1px solid ${health ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: '6px', fontSize: '12px', color: health ? 'var(--color-tf-green)' : '#ef4444' }}>
             <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: health ? 'var(--color-tf-green)' : '#ef4444' }} />
-            Backend: {health?.status || 'Offline'}
+            Backend: {health?.status === 'ok' ? 'Online' : health?.status === 'degraded' ? 'Degraded' : 'Offline'}
           </div>
         </div>
       </div>

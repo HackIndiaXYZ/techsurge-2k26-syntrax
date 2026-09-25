@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Home, FileText, Radio, Wallet, Shield, Settings, LogOut, Leaf } from 'lucide-react';
+import { useApp } from '@/lib/context';
+import { createClient } from '@/lib/supabase';
 
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: Home },
@@ -16,6 +18,14 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { identity } = useApp();
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
 
   return (
     <aside style={{
@@ -129,16 +139,16 @@ export default function Sidebar() {
           fontWeight: 700,
           color: '#0a0e14',
         }}>
-          SA
+          {identity?.display_name ? identity.display_name.substring(0, 2).toUpperCase() : 'U'}
         </div>
         <div>
-          <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-tf-text)' }}>Sanju</div>
+          <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-tf-text)' }}>{identity?.display_name || 'User'}</div>
           <div style={{ fontSize: '10px', color: 'var(--color-tf-text-dim)' }}>Policyholder</div>
         </div>
       </div>
 
       {/* Logout */}
-      <Link href="/login" style={{
+      <button onClick={handleLogout} style={{
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -146,11 +156,16 @@ export default function Sidebar() {
         fontSize: '12px',
         color: 'var(--color-tf-text-dim)',
         textDecoration: 'none',
+        background: 'none',
+        border: 'none',
         borderTop: '1px solid var(--color-tf-border)',
+        cursor: 'pointer',
+        width: '100%',
+        textAlign: 'left',
       }}>
         <LogOut size={14} />
         Log out
-      </Link>
+      </button>
     </aside>
   );
 }

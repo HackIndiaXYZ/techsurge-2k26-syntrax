@@ -72,7 +72,12 @@ export default function PoliciesPage() {
           <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#fff' }}>Your Policies</h1>
           <p style={{ fontSize: '13px', color: 'var(--color-tf-text-muted)', marginTop: '2px' }}>Active climate protection for a more secure tomorrow.</p>
         </div>
-        <button className="tf-btn tf-btn-primary" style={{ padding: '8px 16px', fontSize: '12px' }}>
+        <button 
+          className="tf-btn tf-btn-primary" 
+          style={{ padding: '8px 16px', fontSize: '12px', opacity: 0.5, cursor: 'not-allowed' }}
+          disabled
+          title="Policy purchasing will be available in Phase 3."
+        >
           <Plus size={14} /> Add New Policy
         </button>
       </div>
