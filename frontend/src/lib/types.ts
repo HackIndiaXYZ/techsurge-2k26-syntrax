@@ -129,6 +129,11 @@ export interface PolicyResponse {
   currency: string;
   valid_from: string | null;
   valid_until: string | null;
+  // Phase 3B fields
+  premium_amount_paise: number | null;
+  premium_amount_inr_display: string | null;
+  coverage_amount_paise: number | null;
+  coverage_amount_inr_display: string | null;
 }
 
 // ── Wallet ──────────────────────────────────────────────────────────────────

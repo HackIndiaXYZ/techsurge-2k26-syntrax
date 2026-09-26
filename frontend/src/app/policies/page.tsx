@@ -103,7 +103,7 @@ export default function PoliciesPage() {
                 <p style={{ fontSize: '12px', color: 'var(--color-tf-text-dim)' }}>Parametric insurance based on verified rainfall data.</p>
               </div>
             </div>
-            <span className={`tf-badge ${policy.status === 'ACTIVE' ? 'tf-badge-green' : policy.status === 'EXPIRED' ? 'tf-badge-red' : 'tf-badge-orange'}`} style={{ fontSize: '11px', padding: '4px 12px', marginBottom: '16px', display: 'inline-flex' }}>{policy.status}</span>
+            <span className={`tf-badge ${policy.status === 'ACTIVE' ? 'tf-badge-green' : policy.status === 'EXPIRED' ? 'tf-badge-red' : policy.status === 'PAYMENT_PENDING' ? 'tf-badge-orange' : policy.status === 'DRAFT' ? 'tf-badge-orange' : 'tf-badge-orange'}`} style={{ fontSize: '11px', padding: '4px 12px', marginBottom: '16px', display: 'inline-flex' }}>{policy.status === 'PAYMENT_PENDING' ? 'Payment Pending' : policy.status}</span>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginTop: '16px' }}>
               <div>
@@ -203,9 +203,9 @@ export default function PoliciesPage() {
                 <td>{policy.trigger_operator} {policy.trigger_threshold_mm} mm / {policy.observation_window_minutes} min</td>
                 <td style={{ color: 'var(--color-tf-green)' }}>{policy.payout_amount_inr_display}</td>
                 <td>
-                  <span className="tf-badge tf-badge-green">
-                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: 'var(--color-tf-green)' }} />
-                    {policy.status}
+                  <span className={`tf-badge ${policy.status === 'ACTIVE' ? 'tf-badge-green' : policy.status === 'EXPIRED' ? 'tf-badge-red' : 'tf-badge-orange'}`}>
+                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: policy.status === 'ACTIVE' ? 'var(--color-tf-green)' : policy.status === 'EXPIRED' ? '#ef4444' : '#f59e0b' }} />
+                    {policy.status === 'PAYMENT_PENDING' ? 'Payment Pending' : policy.status}
                   </span>
                 </td>
                 <td>{formatDate(policy.valid_from)} - {formatDate(policy.valid_until)}</td>

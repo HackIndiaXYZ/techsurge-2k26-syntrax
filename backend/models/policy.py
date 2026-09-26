@@ -21,6 +21,8 @@ from models.base import Base, TimestampMixin
 
 
 class PolicyStatus(str, enum.Enum):
+    DRAFT = "DRAFT"
+    PAYMENT_PENDING = "PAYMENT_PENDING"
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
     EXPIRED = "EXPIRED"
@@ -48,7 +50,11 @@ class Policy(Base, TimestampMixin):
     # Payout — stored as integer paise (NEVER float)
     payout_amount_paise: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
-    status: Mapped[str] = mapped_column(Text, default="ACTIVE", nullable=False)
+    # Phase 3B: Premium (user pays) and coverage (user receives on trigger)
+    premium_amount_paise: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    coverage_amount_paise: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+
+    status: Mapped[str] = mapped_column(Text, default="PAYMENT_PENDING", nullable=False)
 
     # DB has both start_at/end_at AND valid_from/valid_until (added by prior migration)
     start_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
