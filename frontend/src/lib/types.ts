@@ -136,6 +136,31 @@ export interface PolicyResponse {
   coverage_amount_inr_display: string | null;
 }
 
+// ── Payment (Phase 3C) ─────────────────────────────────────────────────────
+export interface PaymentOrderResponse {
+  payment_id: string;
+  policy_id: string;
+  razorpay_order_id: string;
+  razorpay_key_id: string;
+  amount_paise: number;
+  currency: string;
+  status: string;
+}
+
+export interface PaymentVerifyRequest {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+export interface PaymentVerifyResponse {
+  payment_id: string;
+  policy_id: string;
+  payment_status: string;
+  policy_status: string;
+  verified: boolean;
+}
+
 // ── Wallet ──────────────────────────────────────────────────────────────────
 export interface WalletTransactionResponse {
   transaction_id: string;

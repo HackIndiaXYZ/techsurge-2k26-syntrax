@@ -12,6 +12,9 @@ import {
   PayoutResponse,
   AuditListResponse,
   IdentityResponse,
+  PaymentOrderResponse,
+  PaymentVerifyRequest,
+  PaymentVerifyResponse,
   ApiError,
 } from './types';
 
@@ -120,6 +123,21 @@ export const api = {
     return apiFetch<AuditListResponse>(
       `/policies/${encodeURIComponent(policyId)}/audit?limit=${limit}`,
       { cache: 'no-store' }
+    );
+  },
+
+  // ── Payments (Phase 3C) ─────────────────────────────────────────────────
+  async createPaymentOrder(policyId: string): Promise<PaymentOrderResponse> {
+    return apiFetch<PaymentOrderResponse>(
+      `/policies/${encodeURIComponent(policyId)}/payments/order`,
+      { method: 'POST' }
+    );
+  },
+
+  async verifyPayment(policyId: string, data: PaymentVerifyRequest): Promise<PaymentVerifyResponse> {
+    return apiFetch<PaymentVerifyResponse>(
+      `/policies/${encodeURIComponent(policyId)}/payments/verify`,
+      { method: 'POST', body: JSON.stringify(data) }
     );
   },
 };

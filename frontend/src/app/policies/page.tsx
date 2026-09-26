@@ -5,13 +5,15 @@ import AppLayout from '@/components/AppLayout';
 import { api } from '@/lib/api';
 import { useApp } from '@/lib/context';
 import { PolicyResponse } from '@/lib/types';
-import { Plus, CloudRain, Radio, Zap, ShieldCheck, Eye, ChevronLeft, ChevronRight, Loader2, WifiOff } from 'lucide-react';
+import { Plus, CloudRain, Radio, Zap, ShieldCheck, Eye, ChevronLeft, ChevronRight, Loader2, WifiOff, CreditCard } from 'lucide-react';
 
 export default function PoliciesPage() {
   const { identity, identityLoading } = useApp();
   const [policy, setPolicy] = useState<PolicyResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,6 +106,68 @@ export default function PoliciesPage() {
               </div>
             </div>
             <span className={`tf-badge ${policy.status === 'ACTIVE' ? 'tf-badge-green' : policy.status === 'EXPIRED' ? 'tf-badge-red' : policy.status === 'PAYMENT_PENDING' ? 'tf-badge-orange' : policy.status === 'DRAFT' ? 'tf-badge-orange' : 'tf-badge-orange'}`} style={{ fontSize: '11px', padding: '4px 12px', marginBottom: '16px', display: 'inline-flex' }}>{policy.status === 'PAYMENT_PENDING' ? 'Payment Pending' : policy.status}</span>
+
+            {/* Phase 3C: Pay Premium button */}
+            {policy.status === 'PAYMENT_PENDING' && policy.premium_amount_paise && (
+              <button
+                className="tf-btn tf-btn-primary"
+                disabled={paymentLoading}
+                style={{ marginLeft: '12px', padding: '6px 20px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                onClick={async () => {
+                  setPaymentLoading(true);
+                  setPaymentMessage(null);
+                  try {
+                    const order = await api.createPaymentOrder(policy.policy_id);
+                    const options = {
+                      key: order.razorpay_key_id,
+                      amount: order.amount_paise,
+                      currency: order.currency,
+                      name: 'TerraFlux',
+                      description: `Premium for ${policy.name}`,
+                      order_id: order.razorpay_order_id,
+                      handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+                        try {
+                          const result = await api.verifyPayment(policy.policy_id, {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                          });
+                          if (result.verified && result.policy_status === 'ACTIVE') {
+                            setPaymentMessage('Payment verified! Policy is now ACTIVE.');
+                            setPolicy({ ...policy, status: 'ACTIVE' });
+                          } else {
+                            setPaymentMessage('Payment verification failed.');
+                          }
+                        } catch {
+                          setPaymentMessage('Payment verification error.');
+                        }
+                        setPaymentLoading(false);
+                      },
+                      modal: {
+                        ondismiss: () => {
+                          setPaymentLoading(false);
+                          setPaymentMessage('Payment cancelled.');
+                        },
+                      },
+                      theme: { color: '#10b981' },
+                    };
+                    const rzp = new (window as any).Razorpay(options);
+                    rzp.open();
+                  } catch (e) {
+                    setPaymentMessage(e instanceof Error ? e.message : 'Failed to create order');
+                    setPaymentLoading(false);
+                  }
+                }}
+              >
+                <CreditCard size={14} />
+                {paymentLoading ? 'Processing...' : `Pay Premium ${policy.premium_amount_inr_display || ''}`}
+              </button>
+            )}
+            {paymentMessage && (
+              <div style={{ marginTop: '8px', fontSize: '12px', color: paymentMessage.includes('ACTIVE') ? 'var(--color-tf-green)' : '#f59e0b' }}>
+                {paymentMessage}
+              </div>
+            )}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginTop: '16px' }}>
               <div>
