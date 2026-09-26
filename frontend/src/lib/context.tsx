@@ -14,8 +14,6 @@ import {
 export type DemoScenario = 'normal' | 'corrupted' | 'no_consensus' | 'duplicate';
 
 // ── Known IDs from actual database ───────────────────────────────────────────
-export const DEMO_POLICY_ID = '00000000-0000-0000-0000-000000000002';
-export const DEMO_WALLET_ID = '00000000-0000-0000-0000-000000000003';
 export const DEMO_REGION_ID = '00000000-0000-0000-0000-000000000001';
 export const DEMO_SOURCE_IDS = [
   '00000000-0000-0000-0000-000000000010', // openmeteo

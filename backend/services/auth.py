@@ -86,44 +86,6 @@ async def get_current_policyholder(
         db.add(ph)
         await db.flush()
         
-        # Hackathon: Automatically provision a Demo Policy and Wallet
-        from models.policy import Policy, PolicyStatus, TriggerRule
-        from models.wallet import Wallet
-        import uuid
-        from datetime import datetime, timezone
-        
-        policy = Policy(
-            policyholder_id=ph.id,
-            region_id=uuid.UUID("00000000-0000-0000-0000-000000000001"), # Demo region
-            name="Kaveri Delta Flood Parametric Insurance 2026",
-            status=PolicyStatus.ACTIVE,
-            payout_amount_paise=1_000_000,
-            currency="INR",
-            valid_from=datetime(2026, 1, 1, tzinfo=timezone.utc),
-            valid_until=datetime(2026, 12, 31, 23, 59, 59, tzinfo=timezone.utc),
-        )
-        db.add(policy)
-        await db.flush()
-        
-        rule = TriggerRule(
-            policy_id=policy.id,
-            metric="rainfall",
-            threshold_value=100.0,
-            threshold_operator=">=",
-            unit="mm",
-            observation_window_minutes=60,
-            consensus_quorum=2,
-            consensus_tolerance=5.0,
-        )
-        db.add(rule)
-        await db.flush()
-        
-        wallet = Wallet(
-            policy_id=policy.id,
-            currency="INR",
-            balance_paise=0,
-        )
-        db.add(wallet)
-        await db.flush()
+
         
     return ph
