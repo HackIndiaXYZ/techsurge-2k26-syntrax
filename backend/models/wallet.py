@@ -11,7 +11,8 @@ from sqlalchemy import BigInteger, DateTime, ForeignKey, Text
 from sqlalchemy import Uuid as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models.base import Base, TimestampMixin
+from datetime import datetime
+from models.base import Base, TimestampMixin, utcnow
 
 
 class Wallet(Base, TimestampMixin):
@@ -28,7 +29,7 @@ class Wallet(Base, TimestampMixin):
     currency: Mapped[str] = mapped_column(Text, default="INR", nullable=False)
     balance_paise: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
     status: Mapped[str | None] = mapped_column(Text, nullable=True)
-    updated_at: Mapped[None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
 
     # Relationships
     policyholder: Mapped["Policyholder"] = relationship("Policyholder", back_populates="wallet")
