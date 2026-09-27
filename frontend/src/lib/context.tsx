@@ -60,6 +60,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  useEffect(() => {
     const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);

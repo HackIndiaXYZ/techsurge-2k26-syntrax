@@ -1,6 +1,26 @@
 @import "tailwindcss";
 
-@theme {
+:root {
+  --color-tf-bg: #f8fafc;
+  --color-tf-surface: #ffffff;
+  --color-tf-card: #ffffff;
+  --color-tf-card-hover: #f1f5f9;
+  --color-tf-border: #e2e8f0;
+  --color-tf-border-light: #cbd5e1;
+  --color-tf-green: #10b981;
+  --color-tf-green-dark: #059669;
+  --color-tf-green-glow: rgba(16, 185, 129, 0.15);
+  --color-tf-green-subtle: rgba(16, 185, 129, 0.08);
+  --color-tf-red: #ef4444;
+  --color-tf-orange: #f59e0b;
+  --color-tf-text: #0f172a;
+  --color-tf-text-muted: #475569;
+  --color-tf-text-dim: #64748b;
+  --color-tf-sidebar: #f1f5f9;
+  --color-tf-header: #ffffff;
+}
+
+.dark {
   --color-tf-bg: #0a0e14;
   --color-tf-surface: #0f1419;
   --color-tf-card: #131a21;
@@ -18,6 +38,26 @@
   --color-tf-text-dim: #64748b;
   --color-tf-sidebar: #0c1117;
   --color-tf-header: #0c1117;
+}
+
+@theme {
+  --color-tf-bg: var(--color-tf-bg);
+  --color-tf-surface: var(--color-tf-surface);
+  --color-tf-card: var(--color-tf-card);
+  --color-tf-card-hover: var(--color-tf-card-hover);
+  --color-tf-border: var(--color-tf-border);
+  --color-tf-border-light: var(--color-tf-border-light);
+  --color-tf-green: var(--color-tf-green);
+  --color-tf-green-dark: var(--color-tf-green-dark);
+  --color-tf-green-glow: var(--color-tf-green-glow);
+  --color-tf-green-subtle: var(--color-tf-green-subtle);
+  --color-tf-red: var(--color-tf-red);
+  --color-tf-orange: var(--color-tf-orange);
+  --color-tf-text: var(--color-tf-text);
+  --color-tf-text-muted: var(--color-tf-text-muted);
+  --color-tf-text-dim: var(--color-tf-text-dim);
+  --color-tf-sidebar: var(--color-tf-sidebar);
+  --color-tf-header: var(--color-tf-header);
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
