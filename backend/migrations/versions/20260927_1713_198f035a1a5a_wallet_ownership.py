@@ -54,8 +54,11 @@ def upgrade() -> None:
     op.create_foreign_key('fk_wallets_policyholder_id_policyholders', 'wallets', 'policyholders', ['policyholder_id'], ['id'], ondelete='RESTRICT')
     
     # 6. Drop old column and FK
-    # Need to query for the exact constraint name if 'wallets_policy_id_fkey' is incorrect, but normally it's that.
-    op.drop_constraint('wallets_policy_id_fkey', 'wallets', type_='foreignkey')
+    # Need to drop unique constraint that includes policy_id
+    op.drop_constraint('uq_wallet_holder_currency', 'wallets', type_='unique')
+    
+    # Need to drop the foreign key by its exact name on production
+    op.drop_constraint('fk_wallet_policy', 'wallets', type_='foreignkey')
     op.drop_column('wallets', 'policy_id')
 
 def downgrade() -> None:
@@ -71,6 +74,7 @@ def downgrade() -> None:
     op.drop_constraint('fk_wallets_policyholder_id_policyholders', 'wallets', type_='foreignkey')
     op.drop_constraint('uq_wallets_policyholder_id', 'wallets', type_='unique')
     op.alter_column('wallets', 'policy_id', nullable=False)
-    op.create_foreign_key('wallets_policy_id_fkey', 'wallets', 'policies', ['policy_id'], ['id'], ondelete='RESTRICT')
+    op.create_foreign_key('fk_wallet_policy', 'wallets', 'policies', ['policy_id'], ['id'], ondelete='RESTRICT')
+    op.create_unique_constraint('uq_wallet_holder_currency', 'wallets', ['policy_id', 'currency'])
     op.drop_column('wallets', 'policyholder_id')
 
