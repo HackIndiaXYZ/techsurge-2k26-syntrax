@@ -15,8 +15,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source
 COPY . .
 
-# Expose port (Railway sets PORT env var)
-EXPOSE ${PORT:-8000}
+# Copy startup script
+COPY start.sh .
+RUN chmod +x start.sh
 
-# Run migrations then start server
-CMD alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Expose port (Railway sets PORT env var)
+EXPOSE 8000
+
+# Use shell entrypoint — guarantees $PORT expansion
+ENTRYPOINT ["/bin/sh", "start.sh"]
