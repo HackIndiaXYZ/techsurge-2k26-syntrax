@@ -15,11 +15,14 @@ async def get_my_identity(
     policyholder: Policyholder = Depends(get_current_policyholder),
     db: AsyncSession = Depends(get_db)
 ):
-    # Fetch policies and wallets
+    # Fetch policies and wallet
     ph = await db.scalar(
         select(Policyholder)
         .where(Policyholder.id == policyholder.id)
-        .options(selectinload(Policyholder.policies).selectinload(Policy.wallets))
+        .options(
+            selectinload(Policyholder.policies),
+            selectinload(Policyholder.wallet)
+        )
     )
     
     policies = ph.policies if ph else []
@@ -29,10 +32,10 @@ async def get_my_identity(
         "display_name": ph.display_name if ph else policyholder.display_name,
         "phone_number": ph.phone_number if ph else policyholder.phone_number,
         "phone_verified": ph.phone_verified if ph else policyholder.phone_verified,
+        "wallet_id": str(ph.wallet.id) if ph and ph.wallet else None,
         "policies": [
             {
-                "policy_id": str(p.id),
-                "wallet_id": str(p.wallets[0].id) if p.wallets else None
+                "policy_id": str(p.id)
             }
             for p in policies
         ]

@@ -228,7 +228,7 @@ async def run_simulation(
         
         wallet_rec = await db.scalar(
             select(Wallet)
-            .where(Wallet.policy_id == uuid.UUID(request.policy_id))
+            .where(Wallet.policyholder_id == policy.policyholder_id)
             .options(selectinload(Wallet.transactions))
         )
         if wallet_rec:

@@ -17,7 +17,7 @@ class WalletTransactionResponse(BaseModel):
 
 class WalletResponse(BaseModel):
     wallet_id: str
-    policy_id: str
+    policyholder_id: str
     balance_paise: int
     balance_inr_display: str
     currency: str

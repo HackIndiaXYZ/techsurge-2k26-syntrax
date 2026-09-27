@@ -24,6 +24,7 @@ class Policyholder(Base, TimestampMixin):
 
     # Relationships
     policies: Mapped[list["Policy"]] = relationship("Policy", back_populates="policyholder")
+    wallet: Mapped["Wallet"] = relationship("Wallet", back_populates="policyholder", uselist=False)
 
     def __repr__(self) -> str:
         return f"<Policyholder id={self.id!r} auth_user_id={self.auth_user_id!r}>"

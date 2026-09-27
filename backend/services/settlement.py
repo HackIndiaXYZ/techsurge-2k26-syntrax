@@ -99,7 +99,7 @@ async def settle_payout(
     # ── Fetch wallet for the policy ──────────────────────────────────────────
     from models.wallet import Wallet
     wallet = await db.scalar(
-        select(Wallet).where(Wallet.policy_id == policy.id)
+        select(Wallet).where(Wallet.policyholder_id == policy.policyholder_id)
     )
     if not wallet:
         return None, "FAILED"
@@ -174,6 +174,7 @@ async def settle_payout(
         # Provider confirmed disbursement — credit synthetic wallet
         wallet_tx = await credit_wallet(
             policy_id=policy.id,
+            policyholder_id=policy.policyholder_id,
             payout_id=payout_id,
             amount_paise=policy.payout_amount_paise,  # integer paise
             correlation_id=correlation_id,

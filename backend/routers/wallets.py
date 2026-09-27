@@ -21,30 +21,25 @@ def _paise_to_inr_display(paise: int) -> str:
     return f"₹{paise // 100:,}"
 
 
-@router.get("/{wallet_id}", response_model=WalletResponse)
-async def get_wallet(
-    wallet_id: str,
+@router.get("/me", response_model=WalletResponse)
+async def get_my_wallet(
     db: AsyncSession = Depends(get_db),
     policyholder: Policyholder = Depends(get_current_policyholder),
 ) -> WalletResponse:
-    try:
-        wid = _uuid.UUID(wallet_id)
-    except ValueError:
-        raise HTTPException(status_code=400, detail={"error": "INVALID_ID", "message": f"Invalid wallet_id: {wallet_id!r}"})
-
+    """
+    Get the authenticated policyholder's wallet and transactions.
+    Wallet is 1:1 with the policyholder.
+    """
     wallet = await db.scalar(
         select(Wallet)
-        .where(Wallet.id == wid)
-        .options(selectinload(Wallet.transactions), selectinload(Wallet.policy))
+        .where(Wallet.policyholder_id == policyholder.id)
+        .options(selectinload(Wallet.transactions))
     )
     if wallet is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={"error": "NOT_FOUND", "message": f"Wallet {wallet_id!r} not found."},
+            detail={"error": "NOT_FOUND", "message": "Wallet not found for this user."},
         )
-
-    if not wallet.policy or wallet.policy.policyholder_id != policyholder.id:
-        raise HTTPException(status_code=403, detail="Not authorized to access this wallet")
 
     txs = [
         WalletTransactionResponse(
@@ -60,7 +55,7 @@ async def get_wallet(
 
     return WalletResponse(
         wallet_id=str(wallet.id),
-        policy_id=str(wallet.policy_id),
+        policyholder_id=str(wallet.policyholder_id),
         balance_paise=wallet.balance_paise,
         balance_inr_display=_paise_to_inr_display(wallet.balance_paise),
         currency=wallet.currency,

@@ -22,8 +22,8 @@ class Wallet(Base, TimestampMixin):
     __tablename__ = "wallets"
 
     id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    policy_id: Mapped[uuid.UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("policies.id", ondelete="RESTRICT"), nullable=False
+    policyholder_id: Mapped[uuid.UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("policyholders.id", ondelete="RESTRICT"), nullable=False, unique=True
     )
     currency: Mapped[str] = mapped_column(Text, default="INR", nullable=False)
     balance_paise: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
@@ -31,7 +31,7 @@ class Wallet(Base, TimestampMixin):
     updated_at: Mapped[None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    policy: Mapped["Policy"] = relationship("Policy", back_populates="wallets")
+    policyholder: Mapped["Policyholder"] = relationship("Policyholder", back_populates="wallet")
     transactions: Mapped[list["WalletTransaction"]] = relationship(
         "WalletTransaction", back_populates="wallet", order_by="WalletTransaction.created_at.desc()"
     )

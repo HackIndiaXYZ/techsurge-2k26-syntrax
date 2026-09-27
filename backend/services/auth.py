@@ -86,6 +86,17 @@ async def get_current_policyholder(
         db.add(ph)
         await db.flush()
         
-
+    # Idempotently ensure Wallet exists
+    from models.wallet import Wallet
+    w = await db.scalar(select(Wallet).where(Wallet.policyholder_id == ph.id))
+    if not w:
+        w = Wallet(
+            policyholder_id=ph.id,
+            balance_paise=0,
+            currency="INR",
+            status="ACTIVE"
+        )
+        db.add(w)
+        await db.flush()
         
     return ph

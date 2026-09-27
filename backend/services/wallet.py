@@ -20,6 +20,7 @@ from services.ids import new_uuid
 
 async def credit_wallet(
     policy_id: str,
+    policyholder_id: str,
     payout_id: str,
     amount_paise: int,   # MUST be integer — callers must not pass float
     correlation_id: str,
@@ -46,10 +47,10 @@ async def credit_wallet(
 
     # ── Fetch wallet ─────────────────────────────────────────────────────────
     wallet = await db.scalar(
-        select(Wallet).where(Wallet.policy_id == policy_id).with_for_update()
+        select(Wallet).where(Wallet.policyholder_id == policyholder_id).with_for_update()
     )
     if wallet is None:
-        raise ValueError(f"No wallet found for policy_id={policy_id!r}")
+        raise ValueError(f"No wallet found for policyholder_id={policyholder_id!r}")
 
     balance_before: int = wallet.balance_paise  # integer
     balance_after: int = balance_before + amount_paise  # integer arithmetic only

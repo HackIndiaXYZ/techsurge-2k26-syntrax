@@ -75,11 +75,24 @@ async def seed(db: AsyncSession) -> None:
     await db.flush()
     logger.info(f"Seeded WeatherSources: {SOURCE_IDS}")
 
+    # ── Policyholder for Demo ────────────────────────────────────────────────
+    POLICYHOLDER_ID = uuid.UUID("00000000-0000-0000-0000-000000000005")
+    from models.policyholder import Policyholder
+    existing_ph = await db.get(Policyholder, POLICYHOLDER_ID)
+    if not existing_ph:
+        db.add(Policyholder(
+            id=POLICYHOLDER_ID,
+            display_name="Demo User",
+            phone_verified=False
+        ))
+        await db.flush()
+
     # ── Policy ───────────────────────────────────────────────────────────────
     existing_policy = await db.get(Policy, POLICY_ID)
     if not existing_policy:
         db.add(Policy(
             id=POLICY_ID,
+            policyholder_id=POLICYHOLDER_ID,
             region_id=REGION_ID,
             name="Kaveri Delta Flood Parametric Insurance 2026",
             status=PolicyStatus.ACTIVE,
@@ -112,7 +125,7 @@ async def seed(db: AsyncSession) -> None:
     if not existing_wallet:
         db.add(Wallet(
             id=WALLET_ID,
-            policy_id=POLICY_ID,
+            policyholder_id=POLICYHOLDER_ID,
             currency="INR",
             balance_paise=0,    # Starting balance: 0 paise — integer
         ))

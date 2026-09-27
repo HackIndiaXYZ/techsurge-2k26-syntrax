@@ -79,7 +79,6 @@ class Policy(Base, TimestampMixin):
     )
 
     payouts: Mapped[list["Payout"]] = relationship("Payout", back_populates="policy")
-    wallets: Mapped[list["Wallet"]] = relationship("Wallet", back_populates="policy")
 
     def is_currently_valid(self) -> bool:
         from datetime import timezone
