@@ -30,7 +30,9 @@ settings = get_settings()
 
 # ── Alembic config ────────────────────────────────────────────────────────────
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# Escape % signs in database URL to prevent ConfigParser interpolation errors (e.g. %20)
+safe_db_url = settings.database_url.replace("%", "%%") if settings.database_url else ""
+config.set_main_option("sqlalchemy.url", safe_db_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
