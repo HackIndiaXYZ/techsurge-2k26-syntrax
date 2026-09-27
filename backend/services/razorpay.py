@@ -8,18 +8,20 @@ import hmac
 import hashlib
 import logging
 
-import razorpay
 from config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
-def get_razorpay_client() -> razorpay.Client:
+def get_razorpay_client():
     """
     Returns a configured Razorpay client using TEST credentials.
     Raises ValueError if credentials are not configured.
+    Raises ImportError if razorpay package is not installed.
     """
+    import razorpay  # Lazy import — avoids crash if package missing at startup
+
     key_id = settings.razorpay_key_id
     key_secret = settings.razorpay_key_secret
 
