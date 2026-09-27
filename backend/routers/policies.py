@@ -141,7 +141,6 @@ async def create_policy(
     await db.refresh(policy)
 
     from models.policy import TriggerRule
-    import uuid as _uuid
     
     rule = TriggerRule(
         id=_uuid.uuid4(),

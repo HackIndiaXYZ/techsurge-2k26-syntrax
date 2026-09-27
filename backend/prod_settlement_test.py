@@ -55,6 +55,8 @@ def run_prod_e2e():
     }, headers={"Authorization": f"Bearer {token_a}"})
     
     policy = resp.json()
+    if "policy_id" not in policy:
+        print(resp.text)
     policy_id = policy["policy_id"]
     print(f"Policy created: {policy_id}")
     
