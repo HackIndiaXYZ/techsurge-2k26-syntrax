@@ -147,11 +147,12 @@ async def create_policy(
         policy_id=policy.id,
         metric="rainfall",
         threshold_value=100.0,
-        threshold_operator="GTE",
+        threshold_operator=">=",
         unit="mm",
         observation_window_minutes=60,
         consensus_quorum=2,
-        consensus_tolerance=5.0
+        consensus_tolerance=5.0,
+        version=1
     )
     db.add(rule)
     await db.flush()
