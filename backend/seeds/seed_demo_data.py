@@ -59,6 +59,9 @@ async def seed(db: AsyncSession) -> None:
             id=REGION_ID,
             code="KAVERI-001",
             name="Kaveri Delta",
+            timezone="Asia/Kolkata",
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         ))
         await db.flush()
         logger.info(f"Seeded MicroRegion: {REGION_ID}")

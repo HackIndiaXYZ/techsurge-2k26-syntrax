@@ -140,6 +140,23 @@ async def create_policy(
     await db.flush()
     await db.refresh(policy)
 
+    from models.policy import TriggerRule
+    import uuid as _uuid
+    
+    rule = TriggerRule(
+        id=_uuid.uuid4(),
+        policy_id=policy.id,
+        metric="rainfall",
+        threshold_value=100.0,
+        threshold_operator="GTE",
+        unit="mm",
+        observation_window_minutes=60,
+        consensus_quorum=2,
+        consensus_tolerance=5.0
+    )
+    db.add(rule)
+    await db.flush()
+
     return PolicyResponse(
         policy_id=str(policy.id),
         region_id=str(policy.region_id),

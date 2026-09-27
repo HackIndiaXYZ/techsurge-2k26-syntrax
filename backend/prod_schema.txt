@@ -1,0 +1,257 @@
+--- TABLE SCHEMAS ---
+
+TABLE: alembic_version
+  version_num: character varying (NOT NULL)
+
+TABLE: audit_events
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  correlation_id: uuid (NOT NULL)
+  entity_type: text (NOT NULL)
+  entity_id: uuid (NULL)
+  event_type: text (NOT NULL)
+  actor: text (NOT NULL)
+  metadata: jsonb (NOT NULL) DEFAULT '{}'::jsonb
+  occurred_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  status: text (NULL)
+  message: text (NULL)
+  updated_at: timestamp with time zone (NULL)
+  created_at: timestamp with time zone (NULL) DEFAULT now()
+
+TABLE: consensus_members
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  consensus_result_id: uuid (NOT NULL)
+  telemetry_event_id: uuid (NOT NULL)
+  source_id: uuid (NOT NULL)
+  role: USER-DEFINED (NOT NULL)
+  normalized_value: numeric (NOT NULL)
+  rejection_reason: text (NULL)
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+
+TABLE: consensus_results
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  region_id: uuid (NOT NULL)
+  metric: text (NOT NULL)
+  window_start: timestamp with time zone (NOT NULL)
+  window_end: timestamp with time zone (NOT NULL)
+  status: text (NOT NULL)
+  consensus_value_mm: numeric (NULL)
+  quorum: integer (NOT NULL)
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  policy_id: uuid (NULL)
+  median_all_sources_mm: double precision (NULL)
+  source_count_total: integer (NULL) DEFAULT 0
+  source_count_accepted: integer (NULL) DEFAULT 0
+  source_count_outliers: integer (NULL) DEFAULT 0
+  accepted_source_ids: jsonb (NULL)
+  outlier_source_ids: jsonb (NULL)
+  reason: text (NULL)
+
+TABLE: micro_regions
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  code: text (NOT NULL)
+  name: text (NOT NULL)
+  timezone: text (NOT NULL)
+  active: boolean (NOT NULL) DEFAULT true
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  updated_at: timestamp with time zone (NOT NULL) DEFAULT now()
+
+TABLE: payouts
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  policy_id: uuid (NOT NULL)
+  trigger_evaluation_id: uuid (NOT NULL)
+  wallet_id: uuid (NOT NULL)
+  amount_paise: bigint (NOT NULL)
+  status: text (NOT NULL)
+  idempotency_scope: text (NULL)
+  idempotency_key: text (NULL)
+  provider_name: text (NULL)
+  provider_reference: text (NULL)
+  initiated_at: timestamp with time zone (NULL)
+  completed_at: timestamp with time zone (NULL)
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  updated_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  failure_reason: text (NULL)
+
+TABLE: policies
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  policyholder_id: uuid (NOT NULL)
+  region_id: uuid (NOT NULL)
+  trigger_rule_id: uuid (NULL)
+  payout_amount_paise: bigint (NOT NULL)
+  status: text (NOT NULL)
+  start_at: timestamp with time zone (NULL)
+  end_at: timestamp with time zone (NULL)
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  updated_at: timestamp with time zone (NULL) DEFAULT now()
+  name: text (NULL)
+  currency: text (NULL)
+  valid_from: timestamp with time zone (NULL)
+  valid_until: timestamp with time zone (NULL)
+  premium_amount_paise: bigint (NULL)
+  coverage_amount_paise: bigint (NULL)
+
+TABLE: policyholders
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  display_name: text (NULL)
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  updated_at: timestamp with time zone (NULL) DEFAULT now()
+  auth_user_id: uuid (NULL)
+  phone_number: text (NULL)
+  phone_verified: boolean (NOT NULL) DEFAULT false
+
+TABLE: premium_payments
+  id: uuid (NOT NULL)
+  policy_id: uuid (NOT NULL)
+  policyholder_id: uuid (NOT NULL)
+  amount_paise: bigint (NOT NULL)
+  currency: text (NOT NULL) DEFAULT 'INR'::text
+  provider: text (NOT NULL) DEFAULT 'razorpay'::text
+  provider_order_id: text (NULL)
+  provider_payment_id: text (NULL)
+  provider_signature: text (NULL)
+  status: text (NOT NULL) DEFAULT 'CREATED'::text
+  verified_at: timestamp with time zone (NULL)
+  updated_at: timestamp with time zone (NULL)
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+
+TABLE: telemetry_events
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  source_id: uuid (NOT NULL)
+  region_id: uuid (NOT NULL)
+  source_event_id: text (NOT NULL)
+  metric: text (NOT NULL)
+  value: numeric (NOT NULL)
+  unit: text (NOT NULL)
+  observed_at: timestamp with time zone (NOT NULL)
+  window_start: timestamp with time zone (NOT NULL)
+  window_end: timestamp with time zone (NOT NULL)
+  received_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  validation_state: text (NOT NULL) DEFAULT 'PENDING'::validation_state
+  metadata: jsonb (NOT NULL) DEFAULT '{}'::jsonb
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+
+TABLE: telemetry_validation_results
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  telemetry_event_id: uuid (NOT NULL)
+  validation_rule: text (NOT NULL)
+  outcome: text (NOT NULL)
+  reason_code: text (NULL)
+  details: jsonb (NOT NULL) DEFAULT '{}'::jsonb
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+
+TABLE: trigger_evaluations
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  policy_id: uuid (NOT NULL)
+  consensus_result_id: uuid (NOT NULL)
+  trigger_status: text (NOT NULL)
+  reason: text (NULL)
+  evaluated_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  consensus_value_mm: double precision (NULL)
+  threshold_mm: double precision (NULL)
+
+TABLE: trigger_rules
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  metric: text (NOT NULL)
+  threshold_operator: text (NOT NULL)
+  threshold_value: numeric (NOT NULL)
+  unit: text (NOT NULL)
+  observation_window_minutes: integer (NOT NULL)
+  version: integer (NOT NULL)
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  consensus_quorum: integer (NULL) DEFAULT 2
+  policy_id: uuid (NULL)
+  consensus_tolerance: double precision (NULL)
+
+TABLE: wallet_transactions
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  wallet_id: uuid (NOT NULL)
+  payout_id: uuid (NOT NULL)
+  direction: text (NULL)
+  amount_paise: bigint (NOT NULL)
+  balance_before_paise: bigint (NOT NULL)
+  balance_after_paise: bigint (NOT NULL)
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+
+TABLE: wallets
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  policy_id: uuid (NOT NULL)
+  currency: text (NOT NULL) DEFAULT 'INR'::text
+  balance_paise: bigint (NOT NULL) DEFAULT 0
+  status: text (NOT NULL)
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  updated_at: timestamp with time zone (NOT NULL) DEFAULT now()
+
+TABLE: weather_sources
+  id: uuid (NOT NULL) DEFAULT gen_random_uuid()
+  code: text (NOT NULL)
+  kind: text (NOT NULL)
+  enabled: boolean (NOT NULL) DEFAULT true
+  created_at: timestamp with time zone (NOT NULL) DEFAULT now()
+  updated_at: timestamp with time zone (NOT NULL) DEFAULT now()
+
+--- CONSTRAINTS ---
+  alembic_version.version_num -> alembic_version_pkc (PRIMARY KEY)
+  audit_events.id -> audit_events_pkey (PRIMARY KEY)
+  consensus_members.telemetry_event_id -> fk_member_telemetry (FOREIGN KEY)
+  consensus_members.source_id -> fk_member_source (FOREIGN KEY)
+  consensus_members.consensus_result_id -> fk_member_consensus (FOREIGN KEY)
+  consensus_members.id -> consensus_members_pkey (PRIMARY KEY)
+  consensus_members.consensus_result_id -> uq_consensus_member (UNIQUE)
+  consensus_members.telemetry_event_id -> uq_consensus_member (UNIQUE)
+  consensus_results.region_id -> fk_consensus_region (FOREIGN KEY)
+  consensus_results.id -> consensus_results_pkey (PRIMARY KEY)
+  consensus_results.region_id -> uq_consensus_window (UNIQUE)
+  consensus_results.metric -> uq_consensus_window (UNIQUE)
+  consensus_results.window_start -> uq_consensus_window (UNIQUE)
+  consensus_results.window_end -> uq_consensus_window (UNIQUE)
+  micro_regions.id -> micro_regions_pkey (PRIMARY KEY)
+  micro_regions.code -> uq_micro_regions_code (UNIQUE)
+  payouts.policy_id -> fk_payout_policy (FOREIGN KEY)
+  payouts.trigger_evaluation_id -> fk_payout_trigger (FOREIGN KEY)
+  payouts.wallet_id -> fk_payout_wallet (FOREIGN KEY)
+  payouts.id -> payouts_pkey (PRIMARY KEY)
+  payouts.idempotency_scope -> uq_payout_idempotency (UNIQUE)
+  payouts.idempotency_key -> uq_payout_idempotency (UNIQUE)
+  payouts.policy_id -> uq_payout_policy (UNIQUE)
+  policies.region_id -> fk_policies_region (FOREIGN KEY)
+  policies.trigger_rule_id -> fk_policies_trigger_rule (FOREIGN KEY)
+  policies.policyholder_id -> fk_policies_policyholder (FOREIGN KEY)
+  policies.id -> policies_pkey (PRIMARY KEY)
+  policyholders.id -> policyholders_pkey (PRIMARY KEY)
+  policyholders.auth_user_id -> uq_policyholder_auth_user (UNIQUE)
+  policyholders.display_name -> uq_policyholders_display_name (UNIQUE)
+  premium_payments.policy_id -> premium_payments_policy_id_fkey (FOREIGN KEY)
+  premium_payments.policyholder_id -> premium_payments_policyholder_id_fkey (FOREIGN KEY)
+  premium_payments.id -> premium_payments_pkey (PRIMARY KEY)
+  premium_payments.provider_order_id -> uq_premium_payments_provider_order_id (UNIQUE)
+  premium_payments.provider_payment_id -> uq_premium_payments_provider_payment_id (UNIQUE)
+  telemetry_events.source_id -> fk_telemetry_source (FOREIGN KEY)
+  telemetry_events.region_id -> fk_telemetry_region (FOREIGN KEY)
+  telemetry_events.id -> telemetry_events_pkey (PRIMARY KEY)
+  telemetry_events.source_event_id -> uq_telemetry_source_event (UNIQUE)
+  telemetry_events.source_id -> uq_telemetry_source_event (UNIQUE)
+  telemetry_validation_results.telemetry_event_id -> fk_validation_telemetry (FOREIGN KEY)
+  telemetry_validation_results.id -> telemetry_validation_results_pkey (PRIMARY KEY)
+  trigger_evaluations.consensus_result_id -> fk_trigger_consensus (FOREIGN KEY)
+  trigger_evaluations.policy_id -> fk_trigger_policy (FOREIGN KEY)
+  trigger_evaluations.id -> trigger_evaluations_pkey (PRIMARY KEY)
+  trigger_evaluations.consensus_result_id -> uq_trigger_evaluation (UNIQUE)
+  trigger_evaluations.policy_id -> uq_trigger_evaluation (UNIQUE)
+  trigger_rules.policy_id -> trigger_rules_policy_id_fkey (FOREIGN KEY)
+  trigger_rules.id -> trigger_rules_pkey (PRIMARY KEY)
+  trigger_rules.metric -> uq_trigger_rules_definition (UNIQUE)
+  trigger_rules.threshold_value -> uq_trigger_rules_definition (UNIQUE)
+  trigger_rules.version -> uq_trigger_rules_definition (UNIQUE)
+  trigger_rules.observation_window_minutes -> uq_trigger_rules_definition (UNIQUE)
+  trigger_rules.unit -> uq_trigger_rules_definition (UNIQUE)
+  trigger_rules.threshold_operator -> uq_trigger_rules_definition (UNIQUE)
+  wallet_transactions.wallet_id -> fk_txn_wallet (FOREIGN KEY)
+  wallet_transactions.payout_id -> fk_txn_payout (FOREIGN KEY)
+  wallet_transactions.id -> wallet_transactions_pkey (PRIMARY KEY)
+  wallet_transactions.payout_id -> uq_txn_payout (UNIQUE)
+  wallets.policy_id -> fk_wallet_policy (FOREIGN KEY)
+  wallets.id -> wallets_pkey (PRIMARY KEY)
+  wallets.currency -> uq_wallet_holder_currency (UNIQUE)
+  wallets.policy_id -> uq_wallet_holder_currency (UNIQUE)
+  weather_sources.id -> weather_sources_pkey (PRIMARY KEY)
+  weather_sources.code -> uq_weather_sources_code (UNIQUE)
