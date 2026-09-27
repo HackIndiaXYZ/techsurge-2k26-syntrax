@@ -25,12 +25,24 @@ def upgrade() -> None:
     conn = op.get_bind()
     inspector = sa.inspect(conn)
 
+    # Detect if policies.id is String or UUID (due to 0001 bug)
+    policy_id_type = sa.Uuid()
+    policyholder_id_type = sa.Uuid()
+    if inspector.has_table("policies"):
+        for c in inspector.get_columns("policies"):
+            if c["name"] == "id" and isinstance(c["type"], sa.String):
+                policy_id_type = sa.String(64)
+    if inspector.has_table("policyholders"):
+        for c in inspector.get_columns("policyholders"):
+            if c["name"] == "id" and isinstance(c["type"], sa.String):
+                policyholder_id_type = sa.String(64)
+
     if "premium_payments" not in inspector.get_table_names():
         op.create_table(
             "premium_payments",
-            sa.Column("id", sa.Uuid(), primary_key=True),
-            sa.Column("policy_id", sa.Uuid(), sa.ForeignKey("policies.id", ondelete="RESTRICT"), nullable=False),
-            sa.Column("policyholder_id", sa.Uuid(), sa.ForeignKey("policyholders.id", ondelete="RESTRICT"), nullable=False),
+            sa.Column("id", policy_id_type, primary_key=True),
+            sa.Column("policy_id", policy_id_type, sa.ForeignKey("policies.id", ondelete="RESTRICT"), nullable=False),
+            sa.Column("policyholder_id", policyholder_id_type, sa.ForeignKey("policyholders.id", ondelete="RESTRICT"), nullable=False),
             sa.Column("amount_paise", sa.BigInteger(), nullable=False),
             sa.Column("currency", sa.Text(), server_default="INR", nullable=False),
             sa.Column("provider", sa.Text(), server_default="razorpay", nullable=False),
