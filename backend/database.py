@@ -20,14 +20,16 @@ from config import get_settings
 
 settings = get_settings()
 
+from sqlalchemy import pool
+
 # ── Engine ───────────────────────────────────────────────────────────────────
 # echo=False in production; set True locally for SQL debug.
+# Using NullPool and disabling statement_cache_size for Supabase transaction pooler (PgBouncer)
 async_engine = create_async_engine(
     settings.database_url,
     echo=(settings.environment == "development"),
-    pool_pre_ping=True,         # detect stale connections
-    pool_size=5,
-    max_overflow=10,
+    poolclass=pool.NullPool,
+    connect_args={"statement_cache_size": 0},
 )
 
 # ── Session factory ──────────────────────────────────────────────────────────
