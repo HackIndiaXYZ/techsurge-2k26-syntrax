@@ -50,7 +50,7 @@ def run_prod_e2e():
         "premium_amount_paise": 50000,
         "coverage_amount_paise": 1000000,
         "currency": "INR",
-        "start_at": "2026-10-01T00:00:00Z",
+        "start_at": "2026-01-01T00:00:00Z",
         "end_at": "2026-12-31T23:59:59Z",
     }, headers={"Authorization": f"Bearer {token_a}"})
     
@@ -59,6 +59,32 @@ def run_prod_e2e():
         print(resp.text)
     policy_id = policy["policy_id"]
     print(f"Policy created: {policy_id}")
+    
+    # 2. Create order & verify to activate
+    rz_secret = vars.get("RAZORPAY_KEY_SECRET")
+    print("Creating Razorpay order to activate policy...")
+    resp = client.post(f"/policies/{policy_id}/payments/order", headers={"Authorization": f"Bearer {token_a}"})
+    order = resp.json()
+    rz_order_id = order["razorpay_order_id"]
+    
+    import hmac
+    import hashlib
+    fake_payment_id = f"pay_test_{uuid.uuid4().hex[:8]}"
+    msg = f"{rz_order_id}|{fake_payment_id}"
+    valid_sig = hmac.new(rz_secret.encode(), msg.encode(), hashlib.sha256).hexdigest()
+    
+    resp = client.post(
+        f"/policies/{policy_id}/payments/verify",
+        json={
+            "razorpay_order_id": rz_order_id,
+            "razorpay_payment_id": fake_payment_id,
+            "razorpay_signature": valid_sig,
+        },
+        headers={"Authorization": f"Bearer {token_a}"},
+    )
+    v = resp.json()
+    assert v["policy_status"] == "ACTIVE", "Policy failed to activate"
+    print("Policy activated!")
     
     # 3. Simulate Weather Event
     print("Running simulation (Payout Trigger)...")
@@ -88,11 +114,11 @@ def run_prod_e2e():
         
     sim = resp.json()
     print(f"Simulation result: {sim}")
-    assert sim["trigger"]["decision"] == "TRIGGERED", "Policy was not triggered!"
-    assert sim["settlement"]["status"] == "COMPLETED", "Settlement was not completed!"
+    assert sim["trigger"]["status"] == "TRIGGERED", "Policy was not triggered!"
+    assert sim["settlement"]["status"] == "SUCCESS", "Settlement was not successful!"
     
     # 4. Check post-settlement balance
-    resp = client.get(f"/wallets/{wallet_id}", headers={"Authorization": f"Bearer {token_a}"})
+    resp = client.get("/wallets/me", headers={"Authorization": f"Bearer {token_a}"})
     post_wallet_data = resp.json()
     post_balance = post_wallet_data.get("balance_paise", post_wallet_data.get("balance", 0))
     print(f"Post-settlement balance: {post_balance}")
@@ -116,7 +142,7 @@ def run_prod_e2e():
     sim2 = resp.json()
     # If the policy already triggered, it might just return the existing trigger or evaluate to same.
     # The crucial part is that the wallet balance should remain exactly the same.
-    resp = client.get(f"/wallets/{wallet_id}", headers={"Authorization": f"Bearer {token_a}"})
+    resp = client.get("/wallets/me", headers={"Authorization": f"Bearer {token_a}"})
     idempotent_wallet_data = resp.json()
     idempotent_balance = idempotent_wallet_data.get("balance_paise", idempotent_wallet_data.get("balance", 0))
     print(f"Idempotent balance: {idempotent_balance}")
