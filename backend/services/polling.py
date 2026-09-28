@@ -158,6 +158,7 @@ async def _polling_loop():
             async with AsyncSessionLocal() as db:
                 count = await process_all_overdue_notifications(db)
                 if count > 0:
+                    await db.commit()
                     logger.info(f"Processed {count} overdue notifications for escalation.")
         except Exception as e:
             logger.exception(f"Error in polling loop (escalation): {e}")
