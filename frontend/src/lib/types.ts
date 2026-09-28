@@ -225,6 +225,32 @@ export interface IdentityResponse {
   }[];
 }
 
+// ── Notifications (Phase 4) ─────────────────────────────────────────────────
+export interface NotificationResponse {
+  notification_id: string;
+  policyholder_id: string;
+  policy_id: string;
+  payout_id: string;
+  event_type: string;
+  title: string;
+  message: string;
+  status: 'UNREAD' | 'ACKNOWLEDGED';
+  created_at: string;
+  acknowledged_at: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
+export interface NotificationListResponse {
+  notifications: NotificationResponse[];
+  total: number;
+}
+
+export interface AcknowledgeResponse {
+  notification_id: string;
+  status: string;
+  acknowledged_at: string;
+}
+
 // ── API Error ───────────────────────────────────────────────────────────────
 export interface ApiErrorDetail {
   error: string;

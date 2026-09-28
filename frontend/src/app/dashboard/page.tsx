@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
+import NotificationsPanel from '@/components/NotificationsPanel';
 import { useApp } from '@/lib/context';
 import { api } from '@/lib/api';
 import {
@@ -287,6 +288,11 @@ export default function DashboardPage() {
           </div>
           <div style={{ fontSize: '10px', color: 'var(--color-tf-text-dim)' }}>Event → Settlement</div>
         </div>
+      </div>
+
+      {/* Notifications */}
+      <div style={{ marginBottom: '16px' }}>
+        <NotificationsPanel refreshKey={sim ? 1 : 0} />
       </div>
 
       {/* Recent Events + System Health */}

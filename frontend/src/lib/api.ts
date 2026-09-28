@@ -15,6 +15,8 @@ import {
   PaymentOrderResponse,
   PaymentVerifyRequest,
   PaymentVerifyResponse,
+  NotificationListResponse,
+  AcknowledgeResponse,
   ApiError,
 } from './types';
 
@@ -138,6 +140,18 @@ export const api = {
     return apiFetch<PaymentVerifyResponse>(
       `/policies/${encodeURIComponent(policyId)}/payments/verify`,
       { method: 'POST', body: JSON.stringify(data) }
+    );
+  },
+
+  // ── Notifications (Phase 4) ─────────────────────────────────────────────
+  async getNotifications(): Promise<NotificationListResponse> {
+    return apiFetch<NotificationListResponse>('/notifications', { cache: 'no-store' });
+  },
+
+  async acknowledgeNotification(notificationId: string): Promise<AcknowledgeResponse> {
+    return apiFetch<AcknowledgeResponse>(
+      `/notifications/${encodeURIComponent(notificationId)}/acknowledge`,
+      { method: 'POST' }
     );
   },
 };

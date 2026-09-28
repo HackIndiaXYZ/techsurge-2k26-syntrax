@@ -16,6 +16,7 @@ from models.wallet import Wallet, WalletTransaction  # noqa: F401
 from models.audit import AuditEvent, AuditEventType  # noqa: F401
 from models.policyholder import Policyholder  # noqa: F401
 from models.payment import PremiumPayment, PaymentStatus  # noqa: F401
+from models.notification import Notification, NotificationEventType, NotificationStatus  # noqa: F401
 
 __all__ = [
     "Base",
@@ -30,5 +31,6 @@ __all__ = [
     "AuditEvent", "AuditEventType",
     "Policyholder",
     "PremiumPayment", "PaymentStatus",
+    "Notification", "NotificationEventType", "NotificationStatus",
 ]
 

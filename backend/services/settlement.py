@@ -184,6 +184,16 @@ async def settle_payout(
         payout.provider_reference = provider_result.provider_reference
         await db.flush()
 
+        # ── Phase 4: Create settlement notification (same transaction) ────────
+        from services.notification import create_settlement_notification
+        await create_settlement_notification(
+            policyholder_id=policy.policyholder_id,
+            policy_id=policy.id,
+            payout_id=payout_id,
+            amount_paise=policy.payout_amount_paise,
+            db=db,
+        )
+
         await write_audit_event(
             db=db,
             event_type=AuditEventType.PAYOUT_COMPLETED,
