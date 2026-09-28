@@ -60,6 +60,8 @@ async def get_my_notifications(
                 status=n.status,
                 created_at=n.created_at,
                 acknowledged_at=n.acknowledged_at,
+                escalation_due_at=n.escalation_due_at,
+                escalated_at=n.escalated_at,
                 metadata=n.metadata_,
             )
             for n in notifications
@@ -105,8 +107,13 @@ async def acknowledge_notification(
             detail={"error": "FORBIDDEN", "message": "You do not have permission to acknowledge this notification."},
         )
 
-    # Idempotent: if already acknowledged, return existing state without modifying
-    if notification.status == NotificationStatus.ACKNOWLEDGED.value:
+    # Idempotent / Escalated state check
+    # If already acknowledged or escalated, we just record the timestamp if it's missing, but we do NOT revert an ESCALATED status back to ACKNOWLEDGED.
+    if notification.status in (NotificationStatus.ACKNOWLEDGED.value, NotificationStatus.ESCALATED.value):
+        if notification.acknowledged_at is None:
+            notification.acknowledged_at = datetime.now(timezone.utc)
+            await db.flush()
+            await db.commit()
         return AcknowledgeResponse(
             notification_id=str(notification.id),
             status=notification.status,

@@ -29,6 +29,7 @@ class NotificationEventType(str, enum.Enum):
 class NotificationStatus(str, enum.Enum):
     UNREAD = "UNREAD"
     ACKNOWLEDGED = "ACKNOWLEDGED"
+    ESCALATED = "ESCALATED"
 
 
 class Notification(Base, TimestampMixin):
@@ -65,6 +66,8 @@ class Notification(Base, TimestampMixin):
 
     # Timestamps
     acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    escalation_due_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    escalated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Optional structured metadata (e.g., amount_paise, consensus_value)
     metadata_: Mapped[dict | None] = mapped_column("metadata", JSON().with_variant(JSONB, "postgresql"), nullable=True)

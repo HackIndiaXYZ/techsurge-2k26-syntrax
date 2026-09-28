@@ -113,7 +113,8 @@ def run_prod_e2e():
         sys.exit(1)
         
     sim = resp.json()
-    print(f"Simulation result: {sim}")
+    # Use json.dumps to avoid unicode printing issues with the rupee symbol on Windows
+    print(f"Simulation result: {json.dumps(sim, ensure_ascii=True)}")
     assert sim["trigger"]["status"] == "TRIGGERED", "Policy was not triggered!"
     assert sim["settlement"]["status"] == "SUCCESS", "Settlement was not successful!"
     
@@ -149,7 +150,34 @@ def run_prod_e2e():
     
     assert idempotent_balance == post_balance, "Idempotency failed! Balance changed."
     
-    print("SETTLEMENT PHASE 3F E2E VERIFICATION COMPLETE!")
+    # 6. Test Notifications (Phase 4)
+    print("Testing Notifications (Phase 4)...")
+    resp = client.get("/notifications", headers={"Authorization": f"Bearer {token_a}"})
+    assert resp.status_code == 200, "Failed to get notifications"
+    notifs = resp.json()
+    print(f"Total Notifications: {notifs['total']}")
+    
+    # Assert at least one notification exists (since settlement occurred)
+    assert notifs['total'] >= 1, "No notifications found after settlement!"
+    
+    notif = notifs['notifications'][0]
+    assert notif['status'] == "UNREAD", "Notification should be UNREAD"
+    assert "₹" in notif['message'] or "\u20b9" in notif['message'], "Rupee symbol missing from notification"
+    
+    # Test acknowledgement
+    notif_id = notif['notification_id']
+    print(f"Acknowledging notification {notif_id}...")
+    ack_resp = client.post(f"/notifications/{notif_id}/acknowledge", headers={"Authorization": f"Bearer {token_a}"})
+    assert ack_resp.status_code == 200, "Failed to acknowledge notification"
+    ack_data = ack_resp.json()
+    assert ack_data['status'] == "ACKNOWLEDGED", "Notification not acknowledged"
+    
+    # Re-fetch notifications to ensure status updated
+    resp = client.get("/notifications", headers={"Authorization": f"Bearer {token_a}"})
+    updated_notif = next(n for n in resp.json()['notifications'] if n['notification_id'] == notif_id)
+    assert updated_notif['status'] == "ACKNOWLEDGED", "Notification status did not persist"
+    
+    print("SETTLEMENT PHASE 3F & NOTIFICATION PHASE 4 E2E VERIFICATION COMPLETE!")
 
 if __name__ == "__main__":
     run_prod_e2e()

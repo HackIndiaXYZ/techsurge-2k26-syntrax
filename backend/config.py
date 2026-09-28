@@ -78,6 +78,10 @@ class Settings(BaseSettings):
     provider_max_retries: int = 3
     stale_threshold_seconds: int = 7200  # 2 hours
 
+    #  Phase 5 Escalation Config 
+    escalation_mode: str = "production"  # 'production' or 'demo'
+    demo_escalation_window_seconds: int = 60
+
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     """Return the cached application settings singleton."""

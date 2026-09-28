@@ -234,9 +234,11 @@ export interface NotificationResponse {
   event_type: string;
   title: string;
   message: string;
-  status: 'UNREAD' | 'ACKNOWLEDGED';
+  status: 'UNREAD' | 'ACKNOWLEDGED' | 'ESCALATED';
   created_at: string;
   acknowledged_at: string | null;
+  escalation_due_at: string | null;
+  escalated_at: string | null;
   metadata: Record<string, unknown> | null;
 }
 

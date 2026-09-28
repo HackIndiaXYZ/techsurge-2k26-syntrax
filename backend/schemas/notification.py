@@ -17,6 +17,8 @@ class NotificationResponse(BaseModel):
     status: str
     created_at: datetime
     acknowledged_at: datetime | None = None
+    escalation_due_at: datetime | None = None
+    escalated_at: datetime | None = None
     metadata: dict | None = None
 
 

@@ -20,6 +20,7 @@ from services.trigger import evaluate_trigger
 from services.settlement import settle_payout
 from schemas.telemetry import TelemetryIngestRequest
 from services.ids import new_ulid
+from services.escalation import process_all_overdue_notifications
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -151,7 +152,15 @@ async def _polling_loop():
         try:
             await poll_weather_once()
         except Exception as e:
-            logger.exception(f"Error in polling loop: {e}")
+            logger.exception(f"Error in polling loop (weather): {e}")
+            
+        try:
+            async with AsyncSessionLocal() as db:
+                count = await process_all_overdue_notifications(db)
+                if count > 0:
+                    logger.info(f"Processed {count} overdue notifications for escalation.")
+        except Exception as e:
+            logger.exception(f"Error in polling loop (escalation): {e}")
 
         await asyncio.sleep(settings.polling_interval_seconds)
 

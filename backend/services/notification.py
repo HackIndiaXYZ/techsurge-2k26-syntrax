@@ -9,7 +9,8 @@ Invariants:
 - Notification is NEVER created for failed settlements.
 """
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from config import get_settings
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -65,6 +66,14 @@ async def create_settlement_notification(
 
     amount_display = _paise_to_inr_display(amount_paise)
 
+    settings = get_settings()
+    if settings.escalation_mode == "demo":
+        escalation_delta = timedelta(seconds=settings.demo_escalation_window_seconds)
+    else:
+        escalation_delta = timedelta(hours=3)
+    
+    escalation_due_at = datetime.now(timezone.utc) + escalation_delta
+
     notification = Notification(
         id=new_uuid(),
         policyholder_id=policyholder_id,
@@ -78,6 +87,7 @@ async def create_settlement_notification(
             f"The synthetic payout has been credited to your wallet."
         ),
         status=NotificationStatus.UNREAD.value,
+        escalation_due_at=escalation_due_at,
         metadata_={
             "amount_paise": amount_paise,
             "amount_display": amount_display,

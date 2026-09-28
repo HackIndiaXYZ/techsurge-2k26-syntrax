@@ -139,10 +139,14 @@ export default function NotificationsPanel({ refreshKey }: NotificationsPanelPro
                 borderRadius: '8px',
                 backgroundColor: n.status === 'UNREAD'
                   ? 'rgba(16, 185, 129, 0.06)'
-                  : 'rgba(255, 255, 255, 0.02)',
+                  : n.status === 'ESCALATED' 
+                    ? 'rgba(239, 68, 68, 0.06)' 
+                    : 'rgba(255, 255, 255, 0.02)',
                 border: n.status === 'UNREAD'
                   ? '1px solid rgba(16, 185, 129, 0.2)'
-                  : '1px solid var(--color-tf-border)',
+                  : n.status === 'ESCALATED'
+                    ? '1px solid rgba(239, 68, 68, 0.2)'
+                    : '1px solid var(--color-tf-border)',
                 transition: 'all 0.2s ease',
               }}
             >
@@ -154,6 +158,8 @@ export default function NotificationsPanel({ refreshKey }: NotificationsPanelPro
                       backgroundColor: 'var(--color-tf-green)',
                       flexShrink: 0,
                     }} />
+                  ) : n.status === 'ESCALATED' ? (
+                    <AlertTriangle size={14} color="#ef4444" />
                   ) : (
                     <CheckCircle size={14} color="var(--color-tf-text-dim)" />
                   )}
@@ -214,6 +220,18 @@ export default function NotificationsPanel({ refreshKey }: NotificationsPanelPro
                       </>
                     )}
                   </button>
+                ) : n.status === 'ESCALATED' ? (
+                  <span style={{
+                    fontSize: '10px',
+                    color: '#ef4444',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontWeight: 600,
+                  }}>
+                    <AlertTriangle size={10} color="#ef4444" />
+                    ⚠ Assistance escalation initiated
+                  </span>
                 ) : (
                   <span style={{
                     fontSize: '10px',
