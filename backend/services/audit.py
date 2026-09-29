@@ -60,6 +60,10 @@ async def write_audit_event(
     message: str | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> AuditEvent:
+    if policy_id:
+        if metadata is None:
+            metadata = {}
+        metadata["policy_id"] = str(policy_id)
     """
     Append an audit event to the audit_events table.
     Always use db.flush() (not commit) — the calling service owns the transaction.

@@ -26,8 +26,12 @@ async def get_weather_sources():
     return results
 
 @router.post("/poll")
-async def trigger_poll():
+async def trigger_poll(token: str = ""):
     """Manually trigger a weather poll."""
+    if token != settings.internal_api_key and not (settings.environment == "development" and not settings.internal_api_key):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Invalid admin token")
+        
     from services.polling import poll_weather_once
     await poll_weather_once()
     return {"status": "success", "message": "Poll triggered successfully"}

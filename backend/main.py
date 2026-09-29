@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from config import get_settings
-from routers import health, telemetry, simulations, policies, payouts, wallets, audit, me, payments, notifications
+from routers import health, telemetry, simulations, policies, payouts, wallets, audit, me, payments, notifications, voice
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -114,6 +114,7 @@ app.include_router(audit.router)
 app.include_router(me.router)
 app.include_router(payments.router)
 app.include_router(notifications.router)
+app.include_router(voice.router)
 
 from routers import weather
 app.include_router(weather.router)

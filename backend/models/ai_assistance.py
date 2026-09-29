@@ -58,6 +58,8 @@ class AIAssistanceHandoff(Base, TimestampMixin):
     # Relationships
     notification: Mapped["Notification"] = relationship("Notification")
     policyholder: Mapped["Policyholder"] = relationship("Policyholder")
+    policy: Mapped["Policy"] = relationship("Policy")
+    payout: Mapped["Payout"] = relationship("Payout")
 
     def __repr__(self) -> str:
         return f"<AIAssistanceHandoff id={self.id!r} notification_id={self.notification_id!r} status={self.status}>"

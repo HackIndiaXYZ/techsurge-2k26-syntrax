@@ -21,6 +21,8 @@ from services.settlement import settle_payout
 from schemas.telemetry import TelemetryIngestRequest
 from services.ids import new_ulid
 from services.escalation import process_all_overdue_notifications
+from services.ai_assistance import process_handoffs_to_jobs, process_pending_voice_jobs
+from services.orchestration import process_weather_event
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -117,31 +119,15 @@ async def poll_weather_once():
             logger.warning("No successful observations to process.")
             return
 
-        # Run consensus and trigger
+        # Run consensus and trigger via central orchestration
         async with db.begin():
-            consensus_record = await run_consensus(
+            consensus_record, trigger_record, payout, _ = await process_weather_event(
                 observations=accepted_observations,
-                policy_id=policy.id,
-                region_id=region_id,
-                correlation_id=correlation_id,
-                db=db
-            )
-
-            trigger_record = await evaluate_trigger(
-                consensus_result=consensus_record,
                 policy=policy,
+                region_id=str(region_id),
                 correlation_id=correlation_id,
                 db=db
             )
-
-            ts = trigger_record.trigger_status
-            if ts == "TRIGGERED":
-                await settle_payout(
-                    trigger_evaluation=trigger_record,
-                    policy=policy,
-                    correlation_id=correlation_id,
-                    db=db
-                )
 
         logger.info(f"Poll complete. Consensus: {consensus_record.status}, Trigger: {trigger_record.trigger_status}")
 
@@ -162,6 +148,16 @@ async def _polling_loop():
                     logger.info(f"Processed {count} overdue notifications for escalation.")
         except Exception as e:
             logger.exception(f"Error in polling loop (escalation): {e}")
+            
+        try:
+            async with AsyncSessionLocal() as db:
+                h_count = await process_handoffs_to_jobs(db)
+                v_count = await process_pending_voice_jobs(db)
+                if h_count > 0 or v_count > 0:
+                    await db.commit()
+                    logger.info(f"Processed {h_count} AI handoffs, executed {v_count} voice calls.")
+        except Exception as e:
+            logger.exception(f"Error in polling loop (ai_voice): {e}")
 
         await asyncio.sleep(settings.polling_interval_seconds)
 

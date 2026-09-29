@@ -47,11 +47,15 @@ async def get_policy_audit(
     if policy.policyholder_id != policyholder.id:
         raise HTTPException(status_code=403, detail="Not authorized to access this policy")
 
-    # audit_events has no policy_id column — return all events for the demo system
-    total = await db.scalar(select(func.count(AuditEvent.id)))
+    # Filter audit_events by policy_id inside the metadata JSONB column
+    total = await db.scalar(
+        select(func.count(AuditEvent.id))
+        .where(AuditEvent.metadata_.op("->>")("policy_id") == str(pid))
+    )
 
     events_q = await db.execute(
         select(AuditEvent)
+        .where(AuditEvent.metadata_.op("->>")("policy_id") == str(pid))
         .order_by(AuditEvent.created_at.desc())
         .limit(limit)
     )

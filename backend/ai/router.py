@@ -5,7 +5,9 @@ Provides the HTTP API interface for the AI advisory layer.
 These endpoints are called by the backend deterministic core.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from services.auth import get_current_policyholder
+from models.policyholder import Policyholder
 
 from .schemas import (
     AnomalyInput,
@@ -29,7 +31,10 @@ router = APIRouter(prefix="/v1/ai", tags=["AI Advisory"])
 
 
 @router.post("/anomaly", response_model=AnomalyOutput)
-def analyze_anomaly(payload: AnomalyInput) -> AnomalyOutput:
+def analyze_anomaly(
+    payload: AnomalyInput,
+    policyholder: Policyholder = Depends(get_current_policyholder)
+) -> AnomalyOutput:
     """Analyze a consensus window for statistical anomalies."""
     try:
         return score_telemetry_anomaly(payload)
@@ -40,7 +45,8 @@ def analyze_anomaly(payload: AnomalyInput) -> AnomalyOutput:
 @router.post("/explain", response_model=ExplanationOutput)
 def generate_explanation(
     payload: ExplanationInput, 
-    language: ExplanationLanguage = ExplanationLanguage.EN
+    language: ExplanationLanguage = ExplanationLanguage.EN,
+    policyholder: Policyholder = Depends(get_current_policyholder)
 ) -> ExplanationOutput:
     """Generate a human-readable explanation of a pipeline event."""
     try:
@@ -50,7 +56,10 @@ def generate_explanation(
 
 
 @router.post("/notify", response_model=SettlementNotificationOutput)
-def create_settlement_notification(payload: SettlementNotificationInput) -> SettlementNotificationOutput:
+def create_settlement_notification(
+    payload: SettlementNotificationInput,
+    policyholder: Policyholder = Depends(get_current_policyholder)
+) -> SettlementNotificationOutput:
     """Generate a local-language notification for a completed settlement."""
     try:
         return generate_settlement_message(payload)
@@ -59,7 +68,10 @@ def create_settlement_notification(payload: SettlementNotificationInput) -> Sett
 
 
 @router.post("/event", response_model=FrontendAIResponse)
-def process_backend_event(event: BackendEventContract) -> FrontendAIResponse:
+def process_backend_event(
+    event: BackendEventContract,
+    policyholder: Policyholder = Depends(get_current_policyholder)
+) -> FrontendAIResponse:
     """Process a canonical backend event into a unified frontend AI response.
     
     This is the primary integration point for the frontend to get all AI features
@@ -121,8 +133,13 @@ def process_backend_event(event: BackendEventContract) -> FrontendAIResponse:
     return response
 
 @router.post("/voice/call", response_model=VoiceCallResult)
-def initiate_voice_call(request: VoiceCallRequest) -> VoiceCallResult:
+def initiate_voice_call(
+    request: VoiceCallRequest,
+    policyholder: Policyholder = Depends(get_current_policyholder)
+) -> VoiceCallResult:
     """Initiate an outbound voice assistance call."""
+    if not policyholder.phone_verified or policyholder.phone_number != request.phone_number:
+        raise HTTPException(status_code=403, detail="Phone number not verified or mismatched.")
     try:
         return execute_voice_assistance(request)
     except Exception as e:
