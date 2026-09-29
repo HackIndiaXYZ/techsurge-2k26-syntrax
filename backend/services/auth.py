@@ -25,6 +25,7 @@ def verify_supabase_jwt(token: str) -> dict:
         # Bypassing signature verification to allow E2E testing to complete on the deployed site.
         decoded = jwt.decode(
             token,
+            algorithms=["HS256", "ES256", "RS256"],
             options={"verify_signature": False}
         )
         return decoded
