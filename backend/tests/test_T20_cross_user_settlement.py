@@ -24,34 +24,50 @@ async def test_cross_user_settlement(db: AsyncSession):
     # Setup User A and Policy A and Wallet A
     ph_a = Policyholder(id=uuid.uuid4(), display_name="User A")
     db.add(ph_a)
+    rule_a = TriggerRule(id=uuid.uuid4(), metric="rainfall", threshold_operator=">=", threshold_value=100.0, unit="mm", observation_window_minutes=60, consensus_quorum=2, version=9125)
+    db.add(rule_a)
+    await db.flush()
+
     policy_a = Policy(
         id=uuid.uuid4(),
         policyholder_id=ph_a.id,
         region_id=REGION_ID,
+        trigger_rule_id=rule_a.id,
         name="Policy A",
         currency="INR",
         payout_amount_paise=1000000,
+        premium_amount_paise=100000,
         status=PolicyStatus.ACTIVE
     )
     db.add(policy_a)
-    db.add(TriggerRule(id=uuid.uuid4(), policy_id=policy_a.id, metric="rainfall", threshold_operator=">=", threshold_value=100.0, unit="mm", observation_window_minutes=60))
+    await db.flush()
+    rule_a.policy_id = policy_a.id
+
     wallet_a = Wallet(policyholder_id=ph_a.id, currency="INR", balance_paise=0)
     db.add(wallet_a)
 
     # Setup User B and Policy B and Wallet B
     ph_b = Policyholder(id=uuid.uuid4(), display_name="User B")
     db.add(ph_b)
+    rule_b = TriggerRule(id=uuid.uuid4(), metric="rainfall", threshold_operator=">=", threshold_value=100.0, unit="mm", observation_window_minutes=60, consensus_quorum=2, version=9126)
+    db.add(rule_b)
+    await db.flush()
+
     policy_b = Policy(
         id=uuid.uuid4(),
         policyholder_id=ph_b.id,
         region_id=REGION_ID,
+        trigger_rule_id=rule_b.id,
         name="Policy B",
         currency="INR",
         payout_amount_paise=1000000,
+        premium_amount_paise=100000,
         status=PolicyStatus.ACTIVE
     )
     db.add(policy_b)
-    db.add(TriggerRule(id=uuid.uuid4(), policy_id=policy_b.id, metric="rainfall", threshold_operator=">=", threshold_value=100.0, unit="mm", observation_window_minutes=60))
+    await db.flush()
+    rule_b.policy_id = policy_b.id
+
     wallet_b = Wallet(policyholder_id=ph_b.id, currency="INR", balance_paise=0)
     db.add(wallet_b)
     

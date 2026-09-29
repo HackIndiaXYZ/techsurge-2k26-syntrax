@@ -90,28 +90,12 @@ async def seed(db: AsyncSession) -> None:
         ))
         await db.flush()
 
-    # ── Policy ───────────────────────────────────────────────────────────────
-    existing_policy = await db.get(Policy, POLICY_ID)
-    if not existing_policy:
-        db.add(Policy(
-            id=POLICY_ID,
-            policyholder_id=POLICYHOLDER_ID,
-            region_id=REGION_ID,
-            name="Kaveri Delta Flood Parametric Insurance 2026",
-            status=PolicyStatus.ACTIVE,
-            payout_amount_paise=PAYOUT_PAISE,   # 1,000,000 paise = ₹10,000 — integer
-            currency="INR",
-            valid_from=datetime(2026, 1, 1, tzinfo=timezone.utc),
-            valid_until=datetime(2026, 12, 31, 23, 59, 59, tzinfo=timezone.utc),
-        ))
-        await db.flush()
-        logger.info(f"Seeded Policy: {POLICY_ID}")
-
-        # ── TriggerRule ──────────────────────────────────────────────────────
-        from services.ids import new_ulid
-        db.add(TriggerRule(
-            id=uuid.UUID("00000000-0000-0000-0000-000000000004"),
-            policy_id=POLICY_ID,
+    # ── TriggerRule ──────────────────────────────────────────────────────
+    RULE_ID = uuid.UUID("00000000-0000-0000-0000-000000000004")
+    existing_rule = await db.get(TriggerRule, RULE_ID)
+    if not existing_rule:
+        rule = TriggerRule(
+            id=RULE_ID,
             metric="rainfall",
             threshold_value=100.0,
             threshold_operator=">=",
@@ -119,9 +103,33 @@ async def seed(db: AsyncSession) -> None:
             observation_window_minutes=60,
             consensus_quorum=2,
             consensus_tolerance=5.0,
-        ))
+            version=1
+        )
+        db.add(rule)
         await db.flush()
-        logger.info(f"Seeded TriggerRule for policy: {POLICY_ID}")
+
+    # ── Policy ───────────────────────────────────────────────────────────────
+    existing_policy = await db.get(Policy, POLICY_ID)
+    if not existing_policy:
+        policy = Policy(
+            id=POLICY_ID,
+            policyholder_id=POLICYHOLDER_ID,
+            region_id=REGION_ID,
+            trigger_rule_id=RULE_ID,
+            name="Kaveri Delta Flood Parametric Insurance 2026",
+            status=PolicyStatus.ACTIVE,
+            payout_amount_paise=PAYOUT_PAISE,   # 1,000,000 paise = ₹10,000 — integer
+            currency="INR",
+            valid_from=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            valid_until=datetime(2026, 12, 31, 23, 59, 59, tzinfo=timezone.utc),
+        )
+        db.add(policy)
+        await db.flush()
+        logger.info(f"Seeded Policy: {POLICY_ID}")
+        
+        rule = await db.get(TriggerRule, RULE_ID)
+        rule.policy_id = policy.id
+        await db.flush()
 
     # ── Wallet ───────────────────────────────────────────────────────────────
     existing_wallet = await db.get(Wallet, WALLET_ID)

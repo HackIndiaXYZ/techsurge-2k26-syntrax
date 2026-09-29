@@ -100,6 +100,7 @@ async def create_policy(
     The caller CANNOT force the status to ACTIVE — that transition
     is reserved for the payment verification pathway.
     """
+    import uuid as _uuid
     # Validate region exists
     try:
         region_uuid = _uuid.UUID(request.region_id)
@@ -120,11 +121,28 @@ async def create_policy(
             detail={"error": "INVALID_DATES", "message": "end_at must be after start_at"},
         )
 
+    from models.policy import TriggerRule
+    
+    rule = TriggerRule(
+        id=_uuid.uuid4(),
+        metric="rainfall",
+        threshold_value=100.0,
+        threshold_operator=">=",
+        unit="mm",
+        observation_window_minutes=60,
+        consensus_quorum=2,
+        consensus_tolerance=5.0,
+        version=1
+    )
+    db.add(rule)
+    await db.flush()
+
     # Create policy in PAYMENT_PENDING status
     # The payout_amount_paise mirrors coverage for the settlement engine
     policy = Policy(
         policyholder_id=policyholder.id,
         region_id=region_uuid,
+        trigger_rule_id=rule.id,
         name=request.name,
         status=PolicyStatus.PAYMENT_PENDING.value,
         premium_amount_paise=request.premium_amount_paise,
@@ -138,24 +156,11 @@ async def create_policy(
     )
     db.add(policy)
     await db.flush()
-    await db.refresh(policy)
-
-    from models.policy import TriggerRule
     
-    rule = TriggerRule(
-        id=_uuid.uuid4(),
-        policy_id=policy.id,
-        metric="rainfall",
-        threshold_value=100.0,
-        threshold_operator=">=",
-        unit="mm",
-        observation_window_minutes=60,
-        consensus_quorum=2,
-        consensus_tolerance=5.0,
-        version=1
-    )
-    db.add(rule)
+    rule.policy_id = policy.id
     await db.flush()
+    
+    await db.refresh(policy)
 
     return PolicyResponse(
         policy_id=str(policy.id),

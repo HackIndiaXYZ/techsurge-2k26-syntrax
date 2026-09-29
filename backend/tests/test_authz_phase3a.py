@@ -9,7 +9,7 @@ from main import app
 from config import get_settings
 from database import get_db, AsyncSessionLocal
 from models.policyholder import Policyholder
-from models.policy import Policy, PolicyStatus
+from models.policy import Policy, PolicyStatus, TriggerRule
 from models.region import MicroRegion
 
 settings = get_settings()
@@ -50,25 +50,41 @@ async def setup_users_and_policies(db: AsyncSession):
     region_id = uuid.UUID("00000000-0000-0000-0000-000000000001") # demo region exists in seed
     
     # Manually create policies
+    rule_a = TriggerRule(metric="rainfall", threshold_operator=">=", threshold_value=100.0, unit="mm", observation_window_minutes=60, consensus_quorum=2, version=9123)
+    db.add(rule_a)
+    await db.flush()
+
     policy_a = Policy(
         policyholder_id=uuid.UUID(ph_a_id),
         region_id=region_id,
+        trigger_rule_id=rule_a.id,
         name="Test Policy A",
         currency="INR",
         payout_amount_paise=10000,
+        premium_amount_paise=100,
         status=PolicyStatus.ACTIVE
     )
     db.add(policy_a)
+    await db.flush()
+    rule_a.policy_id = policy_a.id
     
+    rule_b = TriggerRule(metric="rainfall", threshold_operator=">=", threshold_value=100.0, unit="mm", observation_window_minutes=60, consensus_quorum=2, version=9124)
+    db.add(rule_b)
+    await db.flush()
+
     policy_b = Policy(
         policyholder_id=uuid.UUID(ph_b_id),
         region_id=region_id,
+        trigger_rule_id=rule_b.id,
         name="Test Policy B",
         currency="INR",
         payout_amount_paise=20000,
+        premium_amount_paise=100,
         status=PolicyStatus.ACTIVE
     )
     db.add(policy_b)
+    await db.flush()
+    rule_b.policy_id = policy_b.id
     await db.commit()
     await db.refresh(policy_a)
     await db.refresh(policy_b)

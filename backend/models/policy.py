@@ -46,6 +46,9 @@ class Policy(Base, TimestampMixin):
     region_id: Mapped[uuid.UUID] = mapped_column(
         PgUUID(as_uuid=True), ForeignKey("micro_regions.id", ondelete="RESTRICT"), nullable=False
     )
+    trigger_rule_id: Mapped[uuid.UUID] = mapped_column(
+        PgUUID(as_uuid=True), ForeignKey("trigger_rules.id", ondelete="RESTRICT"), nullable=False
+    )
 
     # Payout — stored as integer paise (NEVER float)
     payout_amount_paise: Mapped[int] = mapped_column(BigInteger, nullable=False)
@@ -74,8 +77,10 @@ class Policy(Base, TimestampMixin):
     region: Mapped["MicroRegion"] = relationship("MicroRegion", back_populates="policies")
     # trigger_rule via policy_id FK on TriggerRule table
     trigger_rule: Mapped["TriggerRule"] = relationship(
-        "TriggerRule", back_populates="policy",
-        uselist=False
+        "TriggerRule",
+        uselist=False,
+        foreign_keys="[Policy.trigger_rule_id]",
+        post_update=True
     )
 
     payouts: Mapped[list["Payout"]] = relationship("Payout", back_populates="policy")
@@ -131,8 +136,9 @@ class TriggerRule(Base, TimestampMixin):
 
     # Relationships
     policy: Mapped["Policy"] = relationship(
-        "Policy", back_populates="trigger_rule",
-        uselist=False
+        "Policy",
+        uselist=False,
+        foreign_keys="[TriggerRule.policy_id]"
     )
 
 

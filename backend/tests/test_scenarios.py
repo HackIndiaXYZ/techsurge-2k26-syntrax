@@ -184,7 +184,7 @@ async def test_T01_normal_scenario(db: AsyncSession):
 
     assert response.consensus.status == "REACHED"
     assert response.consensus.consensus_value_mm == 110.0
-    assert response.trigger.status == "TRIGGERED"
+    assert response.trigger.status == "TRIGGERED", f"Reason: {response.trigger.reason}"
     assert response.settlement.status == "SUCCESS"
     assert response.settlement.idempotency_status == "NEW"
     assert response.settlement.payout_amount_paise == 1_000_000

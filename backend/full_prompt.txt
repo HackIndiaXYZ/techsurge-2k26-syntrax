@@ -1,0 +1,711 @@
+<USER_REQUEST>
+PHASE 10 FINAL GATE — INDEPENDENT VERIFICATION
+DO NOT BEGIN PHASE 11
+DO NOT MODIFY BUSINESS LOGIC
+DO NOT DECLARE PHASE 10 FROZEN AGAIN UNTIL EVERY GATE BELOW HAS EXPLICIT EVIDENCE
+
+Context:
+Phase 1–9 are considered frozen.
+Phase 10 implementation has already created tests and research instrumentation.
+
+The previous Phase 10 completion claim is NOT sufficient for final freeze because it demonstrated only a subset of the required Phase 10 verification matrix.
+
+Your task now is NOT to implement more product functionality.
+Your task is to independently VERIFY Phase 10.
+
+==================================================
+RULE 1 — NO SELF-CERTIFICATION
+==================================================
+
+Do not conclude "verified" merely because existing tests pass.
+
+For every gate below report exactly one:
+
+PASS
+FAIL
+NOT VERIFIED
+
+For every PASS provide:
+- exact command executed
+- exact test/file
+- result/count
+- relevant evidence
+
+If something was not actually tested, write NOT VERIFIED.
+Do not convert absence of evidence into PASS.
+
+==================================================
+RULE 2 — CLEAN FINAL RUN
+==================================================
+
+Before final verification:
+
+1. Stop editing Phase 10 tests.
+2. Stop changing application behavior.
+3. Run the complete Phase 10 suite from a clean state.
+4. Run the complete existing backend test suite.
+5. Run Phase 1–9 regression verification where available.
+6. Record the exact git commit SHA.
+7. Record whether the tested code is identical to the intended deployment commit.
+
+If any test must be edited during this verification:
+- record the edit,
+- rerun the complete affected suite,
+- then perform one final clean run after all edits stop.
+
+==================================================
+RULE 3 — POSTGRESQL IS REQUIRED
+==================================================
+
+All DB-dependent verification must use PostgreSQL.
+
+Do not substitute SQLite for:
+- transactions
+- unique constraints
+- row locking
+- concurrency
+- SKIP LOCKED
+- idempotency
+- isolation behavior
+
+Record:
+- PostgreSQL version
+- database target
+- migration revision
+- schema state
+
+==================================================
+A — AUTHENTICATION
+==================================================
+
+Verify:
+
+1. registration
+2. login
+3. valid JWT
+4. missing JWT
+5. malformed JWT
+6. invalid JWT
+7. expired JWT
+8. protected endpoint without authentication
+9. logout/revocation if supported
+
+Provide exact PASS/FAIL results.
+
+==================================================
+B — AUTHORIZATION / BOLA / IDOR
+==================================================
+
+Create two completely isolated users:
+
+USER A
+USER B
+
+Each must have distinct:
+- policyholder
+- policy
+- wallet
+- payout
+- notification
+- audit records
+- relevant AI/voice records
+
+Test every sensitive resource:
+
+A -> A = allowed
+A -> B = denied
+
+Explicitly verify:
+
+- policies
+- wallets
+- payouts
+- notifications
+- audit
+- simulations
+- AI endpoints
+- voice endpoints
+- settlement operations
+- weather internal endpoint where applicable
+
+Also verify that ownership is enforced server-side rather than trusting arbitrary IDs supplied by the client.
+
+==================================================
+C — WEATHER PIPELINE
+==================================================
+
+Verify the complete weather-state matrix:
+
+1. all sources healthy and agreeing
+2. exactly two sources agreeing
+3. insufficient quorum
+4. disagreement within tolerance
+5. disagreement beyond tolerance
+6. source unavailable
+7. malformed source data
+8. anomalous source value
+9. duplicate observation
+10. repeated polling
+
+For each case record:
+
+- source inputs
+- normalized values
+- quality/anomaly result
+- quorum result
+- consensus result
+- whether processing continues
+- whether payout occurs
+
+Explicitly verify:
+
+110 / 108 / 111 -> median 110
+
+==================================================
+D — TRIGGER
+==================================================
+
+Verify exact boundaries:
+
+99 mm
+100 mm
+101 mm
+110 mm
+
+Verify:
+- threshold comparison
+- deterministic trigger evaluation
+- duplicate trigger evaluation
+- trigger idempotency
+
+==================================================
+E — SETTLEMENT
+==================================================
+
+Verify:
+
+1. successful settlement
+2. duplicate settlement
+3. replayed settlement
+4. concurrent settlement attempts
+5. failed settlement
+6. retry after failure
+7. invalid policy
+8. wrong-owner settlement
+9. already-completed payout
+
+CRITICAL:
+
+Run duplicate/concurrent cases using genuinely concurrent PostgreSQL transactions.
+
+Do NOT merely call the same function sequentially twice.
+
+Prove:
+- exactly one payout
+- exactly one wallet credit
+- exactly one successful financial effect
+- duplicate attempts do not create additional balance
+
+==================================================
+F — WALLET
+==================================================
+
+Verify:
+
+- valid credit
+- duplicate credit
+- concurrent credit
+- unauthorized access
+- wrong-user wallet access
+- wallet balance after duplicate/replay
+- atomic relationship between payout and wallet credit
+
+==================================================
+G — NOTIFICATION
+==================================================
+
+Verify:
+
+UNREAD
+  -> ACKNOWLEDGED
+
+and:
+
+UNREAD
+  -> ESCALATED
+
+Verify:
+
+- acknowledgement timestamp is server authoritative
+- repeated acknowledgement is idempotent
+- wrong-user acknowledgement denied
+- notification belongs to correct policyholder
+- failed settlement creates no notification
+- successful settlement creates exactly one notification
+
+==================================================
+H — ESCALATION
+==================================================
+
+Verify the actual state machine:
+
+unread + before deadline
+=> no escalation
+
+unread + deadline reached
+=> exactly one escalation
+
+acknowledged before deadline
+=> no escalation
+
+acknowledged after deadline
+=> no escalation
+
+duplicate worker execution
+=> exactly one escalation
+
+concurrent worker execution
+=> exactly one escalation
+
+Verify the real production interval configuration and the explicit demo/test interval separately.
+
+==================================================
+I — AI HANDOFF
+==================================================
+
+Verify:
+
+- eligible escalation creates exactly one AIAssistanceHandoff
+- duplicate processing creates no second handoff
+- concurrent processing creates no second handoff
+- retry states
+- terminal states
+- failure states
+
+Verify AI cannot modify:
+- weather consensus
+- trigger result
+- payout amount
+- settlement decision
+- wallet balance
+
+AI must remain explanatory/assistance-only.
+
+==================================================
+J — VOICE
+==================================================
+
+Verify actual VoiceCallJob enum/state values used by the application.
+
+Test:
+
+PENDING
+CLAIMED
+REQUESTED
+CALLING/IN_PROGRESS as actually defined
+RINGING
+ANSWERED
+COMPLETED
+
+and applicable:
+
+FAILED
+BUSY
+NO_ANSWER
+CANCELED
+RETRY_PENDING
+FAILED_FINAL
+BLOCKED
+
+Verify:
+- unverified phone => BLOCKED
+- verified phone => eligible
+- max retry behavior
+- duplicate handoff does not create duplicate jobs
+- concurrent processing does not create duplicate jobs
+
+Clearly distinguish:
+MOCK PROVIDER VERIFIED
+REAL TWILIO PROVIDER VERIFIED
+REAL TWILIO NOT VERIFIED
+
+Never claim real Twilio verification if only the mock provider was executed.
+
+==================================================
+K — TWILIO WEBHOOK
+==================================================
+
+Verify:
+
+1. valid signature
+2. invalid signature
+3. missing signature
+4. unknown Call SID
+5. duplicate callback
+6. enriched duplicate callback
+7. out-of-order callback
+8. concurrent callbacks
+9. terminal-state regression prevention
+10. CallLog persistence
+11. VoiceCallJob state transition
+12. AuditEvent creation
+
+Verify webhook does NOT:
+- create a new VoiceCallJob
+- initiate another call
+- perform financial operations
+- perform long AI processing
+
+==================================================
+L — AUDIT TRACE
+==================================================
+
+Construct at least one complete successful correlation chain:
+
+weather observation
+-> normalization
+-> consensus
+-> trigger
+-> payout
+-> wallet credit
+-> notification
+-> acknowledgement OR escalation
+-> AI handoff
+-> VoiceCallJob
+-> Call SID if applicable
+-> CallLog
+-> AuditEvent
+
+Prove that the records can be correlated.
+
+Verify timestamps are server-generated and UTC/consistent.
+
+Verify no secrets or unnecessary PII appear in audit records.
+
+==================================================
+M — COMPLETE E2E SCENARIOS
+==================================================
+
+Run all six:
+
+1. Successful event + user acknowledges
+2. Successful event + user does not acknowledge + escalation
+3. No consensus
+4. Below threshold
+5. Duplicate weather/event replay
+6. Cross-user attack attempt
+
+For each provide:
+
+INPUT
+EXPECTED
+ACTUAL
+RESULT
+DATABASE EFFECTS
+
+==================================================
+N — FAILURE INJECTION
+==================================================
+
+Test failures at relevant boundaries:
+
+weather source
+normalization
+consensus
+trigger
+settlement
+wallet
+notification
+escalation
+AI handoff
+voice request
+webhook
+
+For each prove:
+- no unintended financial effect
+- no duplicate side effect
+- correct retry/idempotency behavior
+- correct audit record where applicable
+
+==================================================
+O — TRUE CONCURRENCY
+==================================================
+
+This is mandatory.
+
+Use real concurrent PostgreSQL execution for at least:
+
+1. duplicate settlement
+2. duplicate wallet credit
+3. duplicate notification creation where applicable
+4. duplicate escalation worker
+5. duplicate AI handoff
+6. duplicate voice job creation
+7. webhook duplicate/concurrent callback
+
+Do not use sequential loops as a substitute.
+
+Record:
+- number of concurrent workers
+- isolation/locking behavior
+- final row counts
+- final balance
+- final states
+
+==================================================
+P — RESEARCH INSTRUMENTATION
+==================================================
+
+The current metrics endpoint is NOT automatically considered sufficient.
+
+Inventory every research metric.
+
+For each metric document:
+
+NAME
+PURPOSE
+START TIMESTAMP
+END TIMESTAMP
+UNIT
+SOURCE
+FORMULA
+MISSING DATA RULE
+CORRELATION KEY
+LIMITATION
+
+At minimum cover:
+
+weather ingestion latency
+normalization latency
+consensus latency
+trigger latency
+settlement latency
+wallet-credit latency
+notification latency
+acknowledgement latency
+escalation latency
+AI handoff latency
+call initiation latency
+call answer latency
+call completion latency
+webhook processing latency
+
+Also collect where meaningful:
+
+source agreement
+quorum result
+anomaly count
+duplicate/idempotency events
+failure/retry counts
+escalation count
+voice-call outcomes
+
+Clearly label mock/simulated provider measurements.
+
+==================================================
+Q — SETTLEMENT LATENCY DEFINITION
+==================================================
+
+Specifically inspect:
+
+ConsensusResult.window_end
+Payout.completed_at
+
+If this interval is used as "settlement time", document exactly what it means.
+
+Do NOT call it end-to-end system latency unless the timestamps actually represent end-to-end system boundaries.
+
+==================================================
+R — ACCELERATION FACTOR
+==================================================
+
+Inspect the hardcoded traditional baseline.
+
+If:
+
+TRADITIONAL_LATENCY_SEC = 14 days
+
+then document:
+
+- source/basis for the 14-day assumption
+- whether it is empirical, sourced, assumed, or illustrative
+- exact formula
+- limitation
+
+Do not present an assumed baseline as an experimentally measured control.
+
+==================================================
+S — RESEARCH EXPORT / PRIVACY
+==================================================
+
+Verify any research/export endpoint:
+
+- requires appropriate authorization
+- does not expose secrets
+- does not expose unnecessary PII
+- does not expose credentials/tokens
+- produces reproducible metric definitions
+- preserves correlation identifiers without exposing sensitive information unnecessarily
+
+==================================================
+T — FRONTEND / BROWSER E2E
+==================================================
+
+Attempt browser-level verification of the critical user flow.
+
+If browser automation is unavailable:
+
+write exactly:
+
+NOT VERIFIED — ENVIRONMENT LIMITATION
+
+Do not convert static build/type checks into browser E2E PASS.
+
+==================================================
+U — DEPLOYMENT PARITY
+==================================================
+
+This is mandatory.
+
+Record:
+
+LOCAL COMMIT:
+DEPLOYED COMMIT:
+DATABASE MIGRATION HEAD:
+BACKEND URL:
+FRONTEND URL:
+
+Prove the deployed backend is running the exact commit tested.
+
+Do not infer deployment from:
+- git push
+- successful local tests
+- source code appearance
+- GitHub branch state
+
+If exact parity cannot be proven:
+
+DEPLOYMENT PARITY = NOT VERIFIED
+
+==================================================
+V — REGRESSION
+==================================================
+
+Run:
+
+1. complete existing backend test suite
+2. Phase 1–9 regression tests
+3. Phase 10 suite
+
+Record exact totals:
+
+PASSED
+FAILED
+SKIPPED
+ERRORS
+
+No hidden/ignored failures.
+
+==================================================
+W — METRICS IMPLEMENTATION REVIEW
+==================================================
+
+Review the current `/metrics` implementation.
+
+Determine whether it is:
+
+- research telemetry
+- historical aggregate reporting
+- both
+- neither
+
+Do not change semantics just to make the report pass.
+
+If insufficient for the Phase 10 research requirements, report the gap explicitly.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Create:
+
+phase10_final_verification_report.md
+
+The report MUST contain:
+
+1. Executive status
+2. Exact commit SHA
+3. Environment
+4. PostgreSQL version
+5. migration revision
+6. complete test commands
+7. test totals
+8. authentication matrix
+9. authorization matrix
+10. weather matrix
+11. consensus matrix
+12. trigger matrix
+13. settlement matrix
+14. wallet matrix
+15. notification matrix
+16. escalation matrix
+17. AI matrix
+18. voice matrix
+19. webhook matrix
+20. audit/correlation evidence
+21. six E2E scenarios
+22. concurrency evidence
+23. failure-injection evidence
+24. research metric dictionary
+25. metric limitations
+26. frontend/browser result
+27. deployment parity result
+28. Phase 1–9 regression result
+29. FAIL list
+30. NOT VERIFIED list
+31. remaining risks
+
+==================================================
+FREEZE RULE
+==================================================
+
+Phase 10 may be declared:
+
+VERIFIED & FROZEN
+
+ONLY IF:
+
+- all mandatory behavioral tests PASS
+- true concurrency tests PASS
+- six E2E scenarios PASS
+- Phase 1–9 regression PASS
+- research instrumentation is documented
+- metric limitations are documented
+- frontend result is honestly classified
+- deployment parity is proven OR explicitly marked NOT VERIFIED
+- no unexplained failures remain
+
+If any mandatory item is missing:
+
+DO NOT SAY "PHASE 10 FROZEN".
+
+Instead report:
+
+PHASE 10 = NOT VERIFIED
+
+and list the exact remaining gates.
+
+DO NOT BEGIN PHASE 11.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-29T12:59:13+05:30.
+
+The user's current state is as follows:
+Active Document: d:\fintech\backend\models\ai_assistance.py (LANGUAGE_PYTHON)
+Cursor is on line: 1
+Other open documents:
+- d:\fintech\backend\phase6_verify.py (LANGUAGE_PYTHON)
+- d:\fintech\backend\models\ai_assistance.py (LANGUAGE_PYTHON)
+- d:\fintech\backend\services\ai_assistance.py (LANGUAGE_PYTHON)
+- d:\fintech\backend\services\polling.py (LANGUAGE_PYTHON)
+</ADDITIONAL_METADATA>
